@@ -17,27 +17,23 @@
 //
 //  ------------------------------------------------------------------------------
 
-#include <iostream>
-#include "Blaze.h"
-#include "Core/Window.h"
+#ifndef BLAZE_TYPES_H
+#define BLAZE_TYPES_H
 
-int main()
-{
-    std::cout << "Hello, World!" << std::endl;
-    if (blaze::init())
-    {
-        std::cout << "Sandbox can run now" << std::endl;
-    } else
-    {
-        std::cout << "Blaze failed to initialize!" << std::endl;
-    }
+#include <cstdint>
 
-    if (blaze::window::create("Sandbox", 1280, 720))
-    {
-        blaze::window::show();
-    }
+using i8  = int8_t;
+using i16 = int16_t;
+using i32 = int32_t;
+using i64 = int64_t;
 
-    blaze::window::destroy();
+using u8  = uint8_t;
+using u16 = uint16_t;
+using u32 = uint32_t;
+using u64 = uint64_t;
 
-    return 0;
-}
+using f32 = float;
+using f64 = double;
+
+
+#endif //BLAZE_TYPES_H

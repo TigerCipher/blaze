@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD 20)
 add_library(blaze STATIC
         include/Blaze.h
         src/Blaze.cpp
+        include/Core/Window.h
+        include/Types.h
+        src/Core/Window.cpp
 )
 
 target_include_directories(blaze PUBLIC include)

@@ -17,27 +17,20 @@
 //
 //  ------------------------------------------------------------------------------
 
-#include <iostream>
-#include "Blaze.h"
-#include "Core/Window.h"
+#ifndef BLAZE_WINDOW_H
+#define BLAZE_WINDOW_H
 
-int main()
+#include <string>
+
+#include "Types.h"
+
+namespace blaze::window
 {
-    std::cout << "Hello, World!" << std::endl;
-    if (blaze::init())
-    {
-        std::cout << "Sandbox can run now" << std::endl;
-    } else
-    {
-        std::cout << "Blaze failed to initialize!" << std::endl;
-    }
 
-    if (blaze::window::create("Sandbox", 1280, 720))
-    {
-        blaze::window::show();
-    }
+bool create(const std::string& title, i32 width, i32 height);
+void show();
+void destroy();
 
-    blaze::window::destroy();
-
-    return 0;
 }
+
+#endif //BLAZE_WINDOW_H
