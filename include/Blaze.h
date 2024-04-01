@@ -20,9 +20,19 @@
 #ifndef BLAZE_BLAZE_H
 #define BLAZE_BLAZE_H
 
+#include <unordered_map>
+
+#include "Core/Window.h"
+
 namespace blaze
 {
 bool init();
+void shutdown();
+void run();
+
+const std::unordered_map<std::string, uptr<window>>& windows();
+bool create_window(const std::string& title, i32 width, i32 height);
+void destroy_window(const std::string& title);
 }
 
 #endif //BLAZE_BLAZE_H

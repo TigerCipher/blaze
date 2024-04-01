@@ -39,18 +39,18 @@ public:
     constexpr i32 height() const { return m_height; }
 
     SDL_Window* handle() const;
+
 private:
-    i32 m_width{};
-    i32 m_height{};
-    bool m_alive{ false };
-    SDL_Window*   m_window{ nullptr };
-    void* m_context{ nullptr };
+    i32         m_width{};
+    i32         m_height{};
+    bool        m_alive{ false };
+    SDL_Window* m_window{ nullptr };
+    void*       m_context{ nullptr };
 };
 
 bool init_graphics();
 void shutdown_graphics();
 
-void temp_run();
-}
+} // namespace blaze
 
 #endif //BLAZE_WINDOW_H

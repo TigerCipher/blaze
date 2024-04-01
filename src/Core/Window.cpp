@@ -100,39 +100,5 @@ void shutdown_graphics()
     SDL_Quit();
     is_init = false;
 }
-void temp_run() {
-    init_graphics();
-    bool running = true;
-    window win;
-    window win2;
-    if (win.create("Sandbox", 1280, 720) && win2.create("Test", 400, 400))
-    {
-        while (running)
-        {
-            SDL_Event event;
-            while (SDL_PollEvent(&event))
-            {
-                if((event.type == SDL_WINDOWEVENT) && (event.window.event == SDL_WINDOWEVENT_CLOSE)){
-                    if(SDL_GetWindowFromID(event.window.windowID) == win.handle()){
-                        win.destroy();
-                    } else if(SDL_GetWindowFromID(event.window.windowID) == win2.handle()){
-                        win2.destroy();
-                    }
-                }
-                if (event.type == SDL_QUIT)
-                {
-                    running = false;
-                    break;
-                }
-            }
 
-            win.swap();
-            win2.swap();
-        }
-
-        win.destroy();
-        win2.destroy();
-    }
-    shutdown_graphics();
-}
 } // namespace blaze
