@@ -9,9 +9,14 @@ add_library(blaze STATIC
         include/Core/Window.h
         include/Types.h
         src/Core/Window.cpp
+        include/Graphics/GLCore.h
+        src/Graphics/GLCore.cpp
 )
 
 target_include_directories(blaze PUBLIC include)
+
+find_package(GLEW REQUIRED)
+target_link_libraries(blaze PRIVATE GLEW::GLEW)
 
 find_package(SDL2 CONFIG REQUIRED)
 target_link_libraries(blaze

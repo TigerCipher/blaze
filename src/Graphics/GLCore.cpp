@@ -16,43 +16,44 @@
 //     limitations under the License.
 //
 //  ------------------------------------------------------------------------------
+#include "Graphics/GLCore.h"
 
-#ifndef BLAZE_WINDOW_H
-#define BLAZE_WINDOW_H
+#include <gl/glew.h>
+#include <iostream>
 
-#include <string>
-
-#include "Types.h"
-
-class SDL_Window;
-namespace blaze
+namespace blaze::gfx
 {
 
-class window
+namespace
 {
-public:
-    bool create(const std::string& title, i32 width, i32 height);
-    void swap();
-    void destroy();
-    void activate();
+bool is_init = false;
+} // anonymous namespace
 
-    constexpr i32 width() const { return m_width; }
-    constexpr i32 height() const { return m_height; }
+bool init()
+{
+    if (is_init)
+    {
+        return false;
+    }
+    glewExperimental = true;
+    u32 status = glewInit();
+    if (status != GLEW_OK)
+    {
+        std::cerr << "GLEW failed to initialize: " << glewGetErrorString(status) << std::endl;
+        return false;
+    }
+    is_init = true;
+    return true;
+}
 
-    SDL_Window* handle() const;
-
-private:
-    i32         m_width{};
-    i32         m_height{};
-    bool        m_alive{ false };
-    SDL_Window* m_window{ nullptr };
-    void*       m_context{ nullptr };
-};
-
-
-bool init_graphics();
-void shutdown_graphics();
-
-} // namespace blaze
-
-#endif //BLAZE_WINDOW_H
+void clear_screen(f32 r, f32 g, f32 b)
+{
+    glClearColor(r, g, b, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR)
+    {
+        std::cerr << "OpenGL Error: " << error << std::endl;
+    }
+}
+} // namespace blaze::gfx

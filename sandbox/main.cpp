@@ -19,7 +19,18 @@
 
 #include <iostream>
 #include "Blaze.h"
+#include "Graphics/GLCore.h"
 
+void render()
+{
+    blaze::gfx::clear_screen(0.2f, 0.f, 0.f);
+
+    blaze::gfx::activate_window("Test");
+    blaze::gfx::clear_screen(0.f, 0.2f, 0.f);
+
+    blaze::gfx::activate_window("Test2");
+    blaze::gfx::clear_screen(0.f, 0.f, 0.2f);
+}
 
 int main()
 {
@@ -32,8 +43,10 @@ int main()
         std::cout << "Blaze failed to initialize!" << std::endl;
     }
 
-    if (blaze::create_window("Sandbox", 1280, 720) && blaze::create_window("Test", 400, 400))
+    if (blaze::create_window("Sandbox", 1280, 720) && blaze::create_window("Test", 400, 400) &&
+        blaze::create_window("Test2", 400, 400))
     {
+        blaze::set_render_function(render);
         blaze::run();
     }
 

@@ -17,42 +17,16 @@
 //
 //  ------------------------------------------------------------------------------
 
-#ifndef BLAZE_WINDOW_H
-#define BLAZE_WINDOW_H
-
-#include <string>
+#ifndef BLAZE_GLCORE_H
+#define BLAZE_GLCORE_H
 
 #include "Types.h"
-
-class SDL_Window;
-namespace blaze
+namespace blaze::gfx
 {
+bool init();
 
-class window
-{
-public:
-    bool create(const std::string& title, i32 width, i32 height);
-    void swap();
-    void destroy();
-    void activate();
+void clear_screen(f32 r, f32 g, f32 b);
 
-    constexpr i32 width() const { return m_width; }
-    constexpr i32 height() const { return m_height; }
+}
 
-    SDL_Window* handle() const;
-
-private:
-    i32         m_width{};
-    i32         m_height{};
-    bool        m_alive{ false };
-    SDL_Window* m_window{ nullptr };
-    void*       m_context{ nullptr };
-};
-
-
-bool init_graphics();
-void shutdown_graphics();
-
-} // namespace blaze
-
-#endif //BLAZE_WINDOW_H
+#endif //BLAZE_GLCORE_H

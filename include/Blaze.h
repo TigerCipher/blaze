@@ -21,6 +21,7 @@
 #define BLAZE_BLAZE_H
 
 #include <unordered_map>
+#include <functional>
 
 #include "Core/Window.h"
 
@@ -31,8 +32,16 @@ void shutdown();
 void run();
 
 const std::unordered_map<std::string, uptr<window>>& windows();
+
 bool create_window(const std::string& title, i32 width, i32 height);
 void destroy_window(const std::string& title);
-}
+
+void set_render_function(const std::function<void()>& render_function);
+
+namespace gfx
+{
+void activate_window(const std::string& title);
+} // namespace gfx
+} // namespace blaze
 
 #endif //BLAZE_BLAZE_H

@@ -20,6 +20,8 @@
 
 #include <SDL.h>
 
+#include "Graphics/GLCore.h"
+
 namespace blaze
 {
 
@@ -27,7 +29,11 @@ namespace
 {
 bool                                          running = false;
 bool                                          is_init = false;
+std::string                                   default_window{};
+std::string                                   current_window{};
 std::unordered_map<std::string, uptr<window>> window_map{};
+
+std::function<void()> render_function;
 } // anonymous namespace
 
 bool init()
@@ -68,6 +74,9 @@ void run()
     running = true;
     while (running)
     {
+        gfx::activate_window(default_window);
+        render_function();
+
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
@@ -88,10 +97,10 @@ void run()
                 break;
             }
         }
-        for (auto& [title, window] : window_map)
-        {
-            window->swap();
-        }
+        //        for (auto& [title, window] : window_map)
+        //        {
+        //            window->swap();
+        //        }
     }
 }
 
@@ -105,8 +114,13 @@ bool create_window(const std::string& title, i32 width, i32 height)
     auto window = make_uptr<blaze::window>();
     if (window->create(title, width, height))
     {
-        //        window_map[title] = std::move(window);
         window_map.emplace(title, std::move(window));
+        // First created window will be the default window to render to
+        if (current_window.empty())
+        {
+            default_window = title;
+            current_window = title;
+        }
         return true;
     }
     return false;
@@ -121,6 +135,23 @@ void destroy_window(const std::string& title)
         window_map.erase(it);
     }
 }
+void set_render_function(const std::function<void()>& rf)
+{
+    render_function = rf;
+}
 
 
+void gfx::activate_window(const std::string& title)
+{
+    auto it = window_map.find(title);
+    if (it != window_map.end())
+    {
+        if (current_window != title)
+        {
+            window_map[current_window]->swap();
+            current_window = title;
+        }
+        it->second->activate();
+    }
+}
 } // namespace blaze
