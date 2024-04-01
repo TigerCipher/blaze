@@ -21,6 +21,7 @@
 #include "Blaze.h"
 #include "Core/Window.h"
 
+
 int main()
 {
     std::cout << "Hello, World!" << std::endl;
@@ -32,12 +33,7 @@ int main()
         std::cout << "Blaze failed to initialize!" << std::endl;
     }
 
-    if (blaze::window::create("Sandbox", 1280, 720))
-    {
-        blaze::window::show();
-    }
-
-    blaze::window::destroy();
+    blaze::temp_run();
 
     return 0;
 }

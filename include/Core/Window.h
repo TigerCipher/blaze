@@ -24,13 +24,33 @@
 
 #include "Types.h"
 
-namespace blaze::window
+class SDL_Window;
+namespace blaze
 {
 
-bool create(const std::string& title, i32 width, i32 height);
-void show();
-void destroy();
+class window
+{
+public:
+    bool create(const std::string& title, i32 width, i32 height);
+    void swap();
+    void destroy();
 
+    constexpr i32 width() const { return m_width; }
+    constexpr i32 height() const { return m_height; }
+
+    SDL_Window* handle() const;
+private:
+    i32 m_width{};
+    i32 m_height{};
+    bool m_alive{ false };
+    SDL_Window*   m_window{ nullptr };
+    void* m_context{ nullptr };
+};
+
+bool init_graphics();
+void shutdown_graphics();
+
+void temp_run();
 }
 
 #endif //BLAZE_WINDOW_H
