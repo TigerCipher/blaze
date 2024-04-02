@@ -24,6 +24,7 @@
 #include <functional>
 
 #include "Core/Window.h"
+#include "Core/Logger.h"
 
 namespace blaze
 {

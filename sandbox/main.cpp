@@ -34,7 +34,7 @@ void render()
 
 int main()
 {
-    std::cout << "Hello, World!" << std::endl;
+    LOG_INFO("Sandbox started");
     if (blaze::init())
     {
         std::cout << "Sandbox can run now" << std::endl;
@@ -51,6 +51,7 @@ int main()
     }
 
     blaze::shutdown();
+    LOG_INFO("Sandbox ended");
 
     return 0;
 }

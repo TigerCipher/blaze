@@ -11,6 +11,8 @@ add_library(blaze STATIC
         src/Core/Window.cpp
         include/Graphics/GLCore.h
         src/Graphics/GLCore.cpp
+        include/Core/Logger.h
+        src/Core/Logger.cpp
 )
 
 target_include_directories(blaze PUBLIC include)
