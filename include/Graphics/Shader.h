@@ -17,18 +17,37 @@
 //
 //  ------------------------------------------------------------------------------
 
-#ifndef BLAZE_GLCORE_H
-#define BLAZE_GLCORE_H
+#ifndef BLAZE_SHADER_H
+#define BLAZE_SHADER_H
 
 #include "Types.h"
-namespace blaze::gfx
-{
-bool init();
 
-void clear_screen(f32 r, f32 g, f32 b);
+namespace blaze::gfx{
 
-void test_shader();
+class shader{
+public:
+    shader(std::string  shader_name);
+    ~shader();
+
+    bool load();
+    void bind() const;
+    void destroy();
+
+    void set_bool(const std::string& name, bool value) const;
+    void set_int(const std::string& name, i32 value) const;
+    void set_float(const std::string& name, f32 value) const;
+
+private:
+    u32 m_id{u32_invalid_id};
+    std::string m_name{};
+    std::string m_vertex_file{};
+    std::string m_fragment_file{};
+
+    bool compile(const std::string& vertex_shader, const std::string& fragment_shader);
+};
+
+[[maybe_unused]] void set_shaders_path(const std::string& path);
 
 }
 
-#endif //BLAZE_GLCORE_H
+#endif //BLAZE_SHADER_H

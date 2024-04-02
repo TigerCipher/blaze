@@ -38,6 +38,11 @@ using u64 = uint64_t;
 using f32 = float;
 using f64 = double;
 
+constexpr u8  u8_invalid_id  = 0xffui8;
+constexpr u16 u16_invalid_id = 0xffffui16;
+constexpr u32 u32_invalid_id = 0xffff'ffffui32;
+constexpr u64 u64_invalid_id = 0xffff'ffff'ffff'ffffui64;
+
 // may go unused, we'll see
 using string_hash = std::hash<std::string>;
 

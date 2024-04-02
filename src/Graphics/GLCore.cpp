@@ -17,6 +17,7 @@
 //
 //  ------------------------------------------------------------------------------
 #include "Graphics/GLCore.h"
+#include "Graphics/Shader.h"
 
 #include <gl/glew.h>
 #include <iostream>
@@ -39,6 +40,8 @@ namespace blaze::gfx
 namespace
 {
 bool is_init = false;
+shader test{"test"};
+u32 vao;
 
 const char* get_error_string(GLenum error)
 {
@@ -59,6 +62,7 @@ const char* get_error_string(GLenum error)
 void GLAPIENTRY error_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message,
                                const void* user_param)
 {
+    return;
     std::cerr << "---------------------opengl-error-callback-start------------" << std::endl;
     std::cerr << "Severity: " << severity << std::endl;
     std::cerr << "OpenGL Error: " << message << std::endl;
@@ -89,6 +93,27 @@ bool init()
     glDebugMessageCallback(error_callback, nullptr);
 #endif
 
+    if(!test.load())
+    {
+        return false;
+    }
+
+    u32 vbo;
+    f32 vertices[] = {
+        -0.5f, -0.5f, 0.0f, // left
+         0.5f, -0.5f, 0.0f, // right
+         0.0f,  0.5f, 0.0f // top
+    };
+    GL_CALL(glGenVertexArrays(1, &vao));
+    GL_CALL(glGenBuffers(1, &vbo));
+    GL_CALL(glBindVertexArray(vao));
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+    GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
+    GL_CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(f32), (void*)nullptr));
+    GL_CALL(glEnableVertexAttribArray(0));
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GL_CALL(glBindVertexArray(0));
+
     is_init = true;
     return true;
 }
@@ -98,4 +123,14 @@ void clear_screen(f32 r, f32 g, f32 b)
     glClearColor(r, g, b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
+
+void test_shader() {
+    test.bind();
+    test.set_float("red", 0.5f);
+    test.set_float("green", 0.2f);
+    test.set_float("blue", 0.8f);
+    GL_CALL(glBindVertexArray(vao));
+    GL_CALL(glDrawArrays(GL_TRIANGLES, 0, 3));
+}
+
 } // namespace blaze::gfx

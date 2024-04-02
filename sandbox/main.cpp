@@ -24,6 +24,7 @@
 void render()
 {
     blaze::gfx::clear_screen(0.2f, 0.f, 0.f);
+    blaze::gfx::test_shader();
 
     blaze::gfx::activate_window("Test");
     blaze::gfx::clear_screen(0.f, 0.2f, 0.f);
