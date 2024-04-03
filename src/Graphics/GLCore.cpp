@@ -98,19 +98,33 @@ bool init()
         return false;
     }
 
-    u32 vbo;
+    u32 vbo, ebo;
     f32 vertices[] = {
-        -0.5f, -0.5f, 0.0f, // left
-         0.5f, -0.5f, 0.0f, // right
-         0.0f,  0.5f, 0.0f // top
+        0.5f,  0.5f, 0.0f,  // top right
+        0.5f, -0.5f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f,  // bottom left
+        -0.5f,  0.5f, 0.0f   // top left
+    };
+
+    u32 indices[] = {
+        0, 1, 3, // first triangle
+        1, 2, 3 // second triangle
     };
     GL_CALL(glGenVertexArrays(1, &vao));
     GL_CALL(glGenBuffers(1, &vbo));
+    GL_CALL(glGenBuffers(1, &ebo));
+
     GL_CALL(glBindVertexArray(vao));
+
     GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
     GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
+
+    GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
+    GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
+
     GL_CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(f32), (void*)nullptr));
     GL_CALL(glEnableVertexAttribArray(0));
+
     GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
     GL_CALL(glBindVertexArray(0));
 
@@ -130,7 +144,8 @@ void test_shader() {
     test.set_float("green", 0.2f);
     test.set_float("blue", 0.8f);
     GL_CALL(glBindVertexArray(vao));
-    GL_CALL(glDrawArrays(GL_TRIANGLES, 0, 3));
+//    GL_CALL(glDrawArrays(GL_TRIANGLES, 0, 3));
+    GL_CALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 }
 
 } // namespace blaze::gfx

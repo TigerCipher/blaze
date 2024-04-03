@@ -74,7 +74,10 @@ void run()
     running = true;
     while (running)
     {
-        gfx::activate_window(default_window);
+        if (window_map.size() > 1)
+        {
+            gfx::activate_window(default_window);
+        }
         render_function();
 
         SDL_Event event;
@@ -97,10 +100,11 @@ void run()
                 break;
             }
         }
-        //        for (auto& [title, window] : window_map)
-        //        {
-        //            window->swap();
-        //        }
+
+        if (window_map.size() == 1)
+        {
+            window_map[default_window]->swap();
+        }
     }
 }
 
