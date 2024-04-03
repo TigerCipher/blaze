@@ -18,6 +18,7 @@
 //  ------------------------------------------------------------------------------
 #include "Graphics/GLCore.h"
 #include "Graphics/Shader.h"
+#include "Graphics/Texture.h"
 
 #include <gl/glew.h>
 #include <iostream>
@@ -40,7 +41,8 @@ namespace blaze::gfx
 namespace
 {
 bool is_init = false;
-shader test{"test"};
+shader test{"texture"};
+texture container{"container.jpg"};
 u32 vao;
 
 const char* get_error_string(GLenum error)
@@ -98,12 +100,18 @@ bool init()
         return false;
     }
 
+    if(!container.load())
+    {
+        return false;
+    }
+
     u32 vbo, ebo;
     f32 vertices[] = {
-        0.5f,  0.5f, 0.0f,  // top right
-        0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f,  0.5f, 0.0f   // top left
+        // positions          // colors           // texture coords
+        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left
     };
 
     u32 indices[] = {
@@ -122,8 +130,14 @@ bool init()
     GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
     GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
 
-    GL_CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(f32), (void*)nullptr));
+    GL_CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(f32), (void*)nullptr));
     GL_CALL(glEnableVertexAttribArray(0));
+
+    GL_CALL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(f32), (void*)(3 * sizeof(f32))));
+    GL_CALL(glEnableVertexAttribArray(1));
+
+    GL_CALL(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(f32), (void*)(6 * sizeof(f32))));
+    GL_CALL(glEnableVertexAttribArray(2));
 
     GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
     GL_CALL(glBindVertexArray(0));
@@ -139,10 +153,11 @@ void clear_screen(f32 r, f32 g, f32 b)
 }
 
 void test_shader() {
+    container.bind();
     test.bind();
-    test.set_float("red", 0.5f);
-    test.set_float("green", 0.2f);
-    test.set_float("blue", 0.8f);
+//    test.set_float("red", 0.5f);
+//    test.set_float("green", 0.2f);
+//    test.set_float("blue", 0.8f);
     GL_CALL(glBindVertexArray(vao));
 //    GL_CALL(glDrawArrays(GL_TRIANGLES, 0, 3));
     GL_CALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));

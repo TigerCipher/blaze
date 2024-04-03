@@ -15,6 +15,8 @@ add_library(blaze STATIC
         src/Core/Logger.cpp
         include/Graphics/Shader.h
         src/Graphics/Shader.cpp
+        include/Graphics/Texture.h
+        src/Graphics/Texture.cpp
 )
 
 target_include_directories(blaze PUBLIC include)
@@ -28,5 +30,8 @@ target_link_libraries(blaze
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
 )
+
+find_package(soil2 CONFIG REQUIRED)
+target_link_libraries(blaze PRIVATE soil2)
 
 add_subdirectory(sandbox)
