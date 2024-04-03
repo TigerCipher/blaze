@@ -32,7 +32,7 @@ public:
     texture(std::string  name) : m_name(std::move(name)) {}
     ~texture();
 
-    bool load();
+    bool load(bool flip = true);
     void unload();
 
     void bind() const;

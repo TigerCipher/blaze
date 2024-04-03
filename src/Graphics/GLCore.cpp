@@ -101,7 +101,7 @@ bool init()
         return false;
     }
 
-    if(!container.load() || !face.load())
+    if(!container.load(true) || !face.load(true))
     {
         return false;
     }
