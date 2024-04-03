@@ -19,6 +19,7 @@
 #include "Core/Window.h"
 
 #include "Graphics/GLCore.h"
+#include "Core/Logger.h"
 #include <SDL.h>
 
 namespace blaze
@@ -48,6 +49,12 @@ bool window::create(const std::string& title, i32 width, i32 height)
     {
         // TODO: Log error
         return false;
+    }
+
+    // for now disable vsync TODO: make this a setting
+    if (SDL_GL_SetSwapInterval(0) < 0)
+    {
+        LOG_WARN("Failed to disable vsync. Error: {}", SDL_GetError());
     }
 
     gfx::init();

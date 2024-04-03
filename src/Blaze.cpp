@@ -72,6 +72,10 @@ void run()
         return;
     }
     running = true;
+
+    u32 frame_counter = 0;
+    f32 timer         = get_time();
+
     while (running)
     {
         if (window_map.size() > 1)
@@ -79,6 +83,14 @@ void run()
             gfx::activate_window(default_window);
         }
         render_function();
+        ++frame_counter;
+
+        if (get_time() - timer > 1.0f)
+        {
+            LOG_TRACE("FPS: {}", frame_counter);
+            frame_counter = 0;
+            timer         = get_time();
+        }
 
         SDL_Event event;
         while (SDL_PollEvent(&event))
@@ -146,7 +158,7 @@ void set_render_function(const std::function<void()>& rf)
 
 f32 get_time()
 {
-    return (f32)SDL_GetPerformanceCounter() / (f32)SDL_GetPerformanceFrequency();
+    return (f32) SDL_GetPerformanceCounter() / (f32) SDL_GetPerformanceFrequency();
 }
 
 
