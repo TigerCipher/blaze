@@ -43,6 +43,7 @@ namespace
 bool is_init = false;
 shader test{"texture"};
 texture container{"container.jpg"};
+texture face{"face.png"};
 u32 vao;
 
 const char* get_error_string(GLenum error)
@@ -100,7 +101,7 @@ bool init()
         return false;
     }
 
-    if(!container.load())
+    if(!container.load() || !face.load())
     {
         return false;
     }
@@ -142,6 +143,10 @@ bool init()
     GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
     GL_CALL(glBindVertexArray(0));
 
+    test.bind();
+    test.set_int("texture1", 0);
+    test.set_int("texture2", 1);
+
     is_init = true;
     return true;
 }
@@ -153,7 +158,11 @@ void clear_screen(f32 r, f32 g, f32 b)
 }
 
 void test_shader() {
+    texture::activate_slot(0);
     container.bind();
+    texture::activate_slot(1);
+    face.bind();
+
     test.bind();
 //    test.set_float("red", 0.5f);
 //    test.set_float("green", 0.2f);

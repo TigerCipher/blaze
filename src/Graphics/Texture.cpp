@@ -46,6 +46,17 @@ bool texture::load()
         return false;
     }
 
+    // Flip texture vertically
+    for (i32 y = 0; y < m_height / 2; ++y)
+    {
+        for (i32 x = 0; x < m_width * channels; ++x)
+        {
+            u8 temp = data[y * m_width * channels + x];
+            data[y * m_width * channels + x] = data[(m_height - y - 1) * m_width * channels + x];
+            data[(m_height - y - 1) * m_width * channels + x] = temp;
+        }
+    }
+
     i32 format = GL_RGB;
     if (channels == 4)
     {
@@ -57,7 +68,7 @@ bool texture::load()
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, data);
@@ -80,6 +91,10 @@ void texture::unload()
 void texture::bind() const
 {
     glBindTexture(GL_TEXTURE_2D, m_id);
+}
+
+void texture::activate_slot(u32 slot) {
+    glActiveTexture(GL_TEXTURE0 + slot);
 }
 
 } // namespace blaze::gfx

@@ -41,6 +41,8 @@ public:
     constexpr i32 width() const { return m_width; }
     constexpr i32 height() const { return m_height; }
 
+    static void activate_slot(u32 slot);
+
 private:
     u32 m_id{ u32_invalid_id };
     i32 m_width{};
