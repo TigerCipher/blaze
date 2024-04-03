@@ -144,6 +144,11 @@ void set_render_function(const std::function<void()>& rf)
     render_function = rf;
 }
 
+f32 get_time()
+{
+    return (f32)SDL_GetPerformanceCounter() / (f32)SDL_GetPerformanceFrequency();
+}
+
 
 void gfx::activate_window(const std::string& title)
 {

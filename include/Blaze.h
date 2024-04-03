@@ -39,6 +39,8 @@ void destroy_window(const std::string& title);
 
 void set_render_function(const std::function<void()>& render_function);
 
+f32 get_time();
+
 namespace gfx
 {
 void activate_window(const std::string& title);

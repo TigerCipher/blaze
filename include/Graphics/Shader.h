@@ -21,6 +21,7 @@
 #define BLAZE_SHADER_H
 
 #include "Types.h"
+#include <glm/glm.hpp>
 
 namespace blaze::gfx{
 
@@ -36,6 +37,10 @@ public:
     void set_bool(const std::string& name, bool value) const;
     void set_int(const std::string& name, i32 value) const;
     void set_float(const std::string& name, f32 value) const;
+    void set_vec2(const std::string& name, const glm::vec2& value) const;
+    void set_vec3(const std::string& name, const glm::vec3& value) const;
+    void set_vec4(const std::string& name, const glm::vec4& value) const;
+    void set_mat4(const std::string& name, const glm::mat4& mat) const;
 
 private:
     u32 m_id{u32_invalid_id};

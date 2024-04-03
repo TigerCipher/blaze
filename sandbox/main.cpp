@@ -25,11 +25,14 @@
 
 #include <GL/glew.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 using namespace blaze;
 
 namespace
 {
-gfx::shader test{"texture"};
+gfx::shader test{"transform"};
 gfx::texture container{"container.jpg"};
 gfx::texture face{"face.png"};
 u32 vao;
@@ -44,10 +47,14 @@ void render()
     gfx::texture::activate_slot(1);
     face.bind();
 
+    glm::mat4 transform = glm::mat4(1.0f);
+    transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+    transform = glm::rotate(transform, get_time(), glm::vec3(0.0f, 0.0f, 1.0f));
+
+
     test.bind();
-    //    test.set_float("red", 0.5f);
-    //    test.set_float("green", 0.2f);
-    //    test.set_float("blue", 0.8f);
+    test.set_mat4("transform", transform);
+
     glBindVertexArray(vao);
     //    GL_CALL(glDrawArrays(GL_TRIANGLES, 0, 3));
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);

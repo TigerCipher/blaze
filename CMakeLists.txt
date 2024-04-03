@@ -34,4 +34,7 @@ target_link_libraries(blaze
 find_package(soil2 CONFIG REQUIRED)
 target_link_libraries(blaze PRIVATE soil2)
 
+find_package(glm CONFIG REQUIRED)
+target_link_libraries(blaze PUBLIC glm::glm)
+
 add_subdirectory(sandbox)
