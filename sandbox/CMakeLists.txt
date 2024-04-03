@@ -6,3 +6,6 @@ set(CMAKE_CXX_STANDARD 20)
 add_executable(sandbox main.cpp)
 target_include_directories(sandbox PUBLIC "../include/")
 target_link_libraries(sandbox PRIVATE blaze)
+
+find_package(GLEW REQUIRED)
+target_link_libraries(sandbox PRIVATE GLEW::GLEW)

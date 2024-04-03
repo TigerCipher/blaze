@@ -20,17 +20,96 @@
 #include <iostream>
 #include "Blaze.h"
 #include "Graphics/GLCore.h"
+#include "Graphics/Shader.h"
+#include "Graphics/Texture.h"
+
+#include <GL/glew.h>
+
+using namespace blaze;
+
+namespace
+{
+gfx::shader test{"texture"};
+gfx::texture container{"container.jpg"};
+gfx::texture face{"face.png"};
+u32 vao;
+} // anonymous namespace
 
 void render()
 {
     blaze::gfx::clear_screen(0.2f, 0.f, 0.f);
-    blaze::gfx::test_shader();
+
+    gfx::texture::activate_slot(0);
+    container.bind();
+    gfx::texture::activate_slot(1);
+    face.bind();
+
+    test.bind();
+    //    test.set_float("red", 0.5f);
+    //    test.set_float("green", 0.2f);
+    //    test.set_float("blue", 0.8f);
+    glBindVertexArray(vao);
+    //    GL_CALL(glDrawArrays(GL_TRIANGLES, 0, 3));
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
 //    blaze::gfx::activate_window("Test");
 //    blaze::gfx::clear_screen(0.f, 0.2f, 0.f);
 //
 //    blaze::gfx::activate_window("Test2");
 //    blaze::gfx::clear_screen(0.f, 0.f, 0.2f);
+}
+
+void init_sandbox(){
+    if(!test.load())
+    {
+        return;
+    }
+
+    if(!container.load(true) || !face.load(true))
+    {
+        return;
+    }
+
+    u32 vbo, ebo;
+    f32 vertices[] = {
+        // positions          // colors           // texture coords
+        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left
+    };
+
+    u32 indices[] = {
+        0, 1, 3, // first triangle
+        1, 2, 3 // second triangle
+    };
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+    glGenBuffers(1, &ebo);
+
+    glBindVertexArray(vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(f32), (void*)nullptr);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(f32), (void*)(3 * sizeof(f32)));
+    glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(f32), (void*)(6 * sizeof(f32)));
+    glEnableVertexAttribArray(2);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//    glBindVertexArray(0); -> causes medium severity debug msg: "Program/shader state performance warning: Vertex shader in program 3 is being recompiled based on GL state"
+
+    test.bind();
+    test.set_int("texture1", 0);
+    test.set_int("texture2", 1);
 }
 
 int main()
@@ -46,6 +125,7 @@ int main()
 
     if (blaze::create_window("Sandbox", 1280, 720))
     {
+        init_sandbox();
         blaze::set_render_function(render);
         blaze::run();
     }

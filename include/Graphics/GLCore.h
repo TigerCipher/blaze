@@ -27,8 +27,6 @@ bool init();
 
 void clear_screen(f32 r, f32 g, f32 b);
 
-void test_shader();
-
 }
 
 #endif //BLAZE_GLCORE_H
