@@ -79,11 +79,11 @@ void init_sandbox(){
 
     u32 vbo, ebo;
     f32 vertices[] = {
-        // positions          // colors           // texture coords
-        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left
+        // positions             // texture coords
+        0.5f,  0.5f, 0.0f,       1.0f, 1.0f, // top right
+        0.5f, -0.5f, 0.0f,       1.0f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f,      0.0f, 0.0f, // bottom left
+        -0.5f,  0.5f, 0.0f,      0.0f, 1.0f  // top left
     };
 
     u32 indices[] = {
@@ -102,14 +102,8 @@ void init_sandbox(){
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(f32), (void*)nullptr);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(f32), (void*)(3 * sizeof(f32)));
-    glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(f32), (void*)(6 * sizeof(f32)));
-    glEnableVertexAttribArray(2);
+    test.bind_attribute("aPos", (void*)nullptr);
+    test.bind_attribute("aTexCoord", (void*)(3 * sizeof(f32)));
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 //    glBindVertexArray(0); -> causes medium severity debug msg: "Program/shader state performance warning: Vertex shader in program 3 is being recompiled based on GL state"

@@ -34,6 +34,7 @@ std::string shaders_path = "./assets/shaders/";
 
 std::string read_file(const std::string& file)
 {
+    LOG_DEBUG("Reading shader file: {}", file);
     std::string   source{};
     std::ifstream stream;
     stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -79,6 +80,78 @@ bool check_error(u32 id, const std::string& type)
     return false;
 }
 
+GLenum get_basic_type(u32 type)
+{
+    switch (type)
+    {
+    case GL_FLOAT_VEC2:
+    case GL_FLOAT_VEC3:
+    case GL_FLOAT_VEC4:
+    case GL_FLOAT: return GL_FLOAT;
+    case GL_INT_VEC2:
+    case GL_INT_VEC3:
+    case GL_INT_VEC4:
+    case GL_INT: return GL_INT;
+    case GL_UNSIGNED_INT_VEC2:
+    case GL_UNSIGNED_INT_VEC3:
+    case GL_UNSIGNED_INT_VEC4:
+    case GL_UNSIGNED_INT: return GL_UNSIGNED_INT;
+    case GL_BYTE: return GL_BYTE;
+    case GL_UNSIGNED_BYTE: return GL_UNSIGNED_BYTE;
+    case GL_SHORT: return GL_SHORT;
+    case GL_UNSIGNED_SHORT: return GL_UNSIGNED_SHORT;
+    default: return GL_FLOAT;
+    }
+}
+
+i32 get_attribute_size(u32 type)
+{
+    switch (type)
+    {
+    case GL_FLOAT_VEC2:
+    case GL_INT_VEC2:
+    case GL_UNSIGNED_INT_VEC2: return 2;
+    case GL_FLOAT_VEC3:
+    case GL_INT_VEC3:
+    case GL_UNSIGNED_INT_VEC3: return 3;
+    case GL_FLOAT_VEC4:
+    case GL_INT_VEC4:
+    case GL_UNSIGNED_INT_VEC4: return 4;
+    case GL_FLOAT:
+    case GL_INT:
+    case GL_UNSIGNED_INT:
+    case GL_BYTE:
+    case GL_UNSIGNED_BYTE:
+    case GL_SHORT:
+    case GL_UNSIGNED_SHORT: return 1;
+    default: return 1;
+    }
+}
+
+i32 get_stride(u32 type)
+{
+    switch (type)
+    {
+    case GL_FLOAT_VEC2: return 2 * sizeof(f32);
+    case GL_FLOAT_VEC3: return 3 * sizeof(f32);
+    case GL_FLOAT_VEC4: return 4 * sizeof(f32);
+    case GL_FLOAT: return sizeof(f32);
+    case GL_INT_VEC2: return 2 * sizeof(i32);
+    case GL_INT_VEC3: return 3 * sizeof(i32);
+    case GL_INT_VEC4: return 4 * sizeof(i32);
+    case GL_INT: return sizeof(i32);
+    case GL_UNSIGNED_INT_VEC2: return 2 * sizeof(u32);
+    case GL_UNSIGNED_INT_VEC3: return 3 * sizeof(u32);
+    case GL_UNSIGNED_INT_VEC4: return 4 * sizeof(u32);
+    case GL_UNSIGNED_INT: return sizeof(u32);
+    case GL_BYTE: return sizeof(i8);
+    case GL_UNSIGNED_BYTE: return sizeof(u8);
+    case GL_SHORT: return sizeof(i16);
+    case GL_UNSIGNED_SHORT: return sizeof(u16);
+    default: return 0;
+    }
+}
+
 } // anonymous namespace
 
 shader::shader(std::string shader_name) : m_name(std::move(shader_name)) {}
@@ -98,15 +171,17 @@ bool shader::load()
     {
         return false;
     }
-
+    LOG_INFO("Shader [{}] loaded successfully", m_name);
     return true;
 }
 
 bool shader::compile(const std::string& vertex_shader, const std::string& fragment_shader)
 {
+    LOG_DEBUG("Compiling shader: {}", m_name);
     const char* vsrc = vertex_shader.c_str();
     const char* fsrc = fragment_shader.c_str();
 
+    LOG_DEBUG("[{}] Compiling vertex shader: {}", m_name, m_vertex_file);
     // Compile vertex shader
     u32 vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vsrc, nullptr);
@@ -117,6 +192,7 @@ bool shader::compile(const std::string& vertex_shader, const std::string& fragme
         return false;
     }
 
+    LOG_DEBUG("[{}] Compiling fragment shader: {}", m_name, m_fragment_file);
     // Compile fragment shader
     u32 fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fsrc, nullptr);
@@ -128,6 +204,7 @@ bool shader::compile(const std::string& vertex_shader, const std::string& fragme
         return false;
     }
 
+    LOG_DEBUG("[{}] Linking shaders", m_name);
     // Link shaders
     m_id = glCreateProgram();
     glAttachShader(m_id, vertex);
@@ -140,10 +217,39 @@ bool shader::compile(const std::string& vertex_shader, const std::string& fragme
         return false;
     }
 
+    // Cache uniform and attribute names/locations
+    i32 count, max_name_length;
+    // Uniforms
+    glGetProgramiv(m_id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &max_name_length);
+    glGetProgramiv(m_id, GL_ACTIVE_UNIFORMS, &count);
+    for (i32 i = 0; i < count; ++i)
+    {
+        std::vector<char> name(max_name_length);
+        i32               size;
+        u32               type;
+        glGetActiveUniform(m_id, i, max_name_length, nullptr, &size, &type, name.data());
+        m_uniforms[name.data()] = glGetUniformLocation(m_id, name.data());
+        LOG_DEBUG("[{}] Uniform: {} - Location: {}", m_name, name.data(), m_uniforms[name.data()]);
+    }
+    // Attributes
+    glGetProgramiv(m_id, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &max_name_length);
+    glGetProgramiv(m_id, GL_ACTIVE_ATTRIBUTES, &count);
+    for (i32 i = 0; i < count; ++i)
+    {
+        std::vector<char> name(max_name_length);
+        i32               size;
+        u32               type;
+        glGetActiveAttrib(m_id, i, max_name_length, nullptr, &size, &type, name.data());
+        m_attributes[name.data()] = { glGetAttribLocation(m_id, name.data()), get_attribute_size(type), get_basic_type(type) };
+        m_total_stride += get_stride(type);
+        LOG_DEBUG("[{}] Attribute: {} - Location: {}", m_name, name.data(), m_attributes[name.data()].location);
+    }
+
     // Clean up
     glDeleteShader(vertex);
     glDeleteShader(fragment);
 
+    LOG_INFO("Shader [{}] compiled successfully", m_name);
     return true;
 }
 
@@ -168,37 +274,50 @@ void shader::destroy()
 
 void shader::set_bool(const std::string& name, bool value) const
 {
-    glUniform1i(glGetUniformLocation(m_id, name.c_str()), (i32) value);
+    glUniform1i(m_uniforms.at(name), (i32) value);
 }
 
 void shader::set_int(const std::string& name, i32 value) const
 {
-    glUniform1i(glGetUniformLocation(m_id, name.c_str()), value);
+    glUniform1i(m_uniforms.at(name), value);
 }
 
 void shader::set_float(const std::string& name, f32 value) const
 {
-    glUniform1f(glGetUniformLocation(m_id, name.c_str()), value);
+    glUniform1f(m_uniforms.at(name), value);
 }
 
 void shader::set_vec2(const std::string& name, const glm::vec2& value) const
 {
-    glUniform2fv(glGetUniformLocation(m_id, name.c_str()), 1, &value[0]);
+    glUniform2fv(m_uniforms.at(name), 1, &value[0]);
 }
 
 void shader::set_vec3(const std::string& name, const glm::vec3& value) const
 {
-    glUniform3fv(glGetUniformLocation(m_id, name.c_str()), 1, &value[0]);
+    glUniform3fv(m_uniforms.at(name), 1, &value[0]);
 }
 
 void shader::set_vec4(const std::string& name, const glm::vec4& value) const
 {
-    glUniform4fv(glGetUniformLocation(m_id, name.c_str()), 1, &value[0]);
+    glUniform4fv(m_uniforms.at(name), 1, &value[0]);
 }
 
 void shader::set_mat4(const std::string& name, const glm::mat4& mat) const
 {
-    glUniformMatrix4fv(glGetUniformLocation(m_id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+    glUniformMatrix4fv(m_uniforms.at(name), 1, GL_FALSE, &mat[0][0]);
+}
+
+void shader::bind_attribute(const std::string& name, const void* pointer, bool normalized) const
+{
+    // Check if attribute exists
+    auto it = m_attributes.find(name);
+    if (it != m_attributes.end())
+    {
+        vertex_attribute attr     = it->second;
+        u32              location = attr.location;
+        glVertexAttribPointer(location, attr.count, attr.type, attr.normalized, m_total_stride, pointer);
+        glEnableVertexAttribArray(location);
+    }
 }
 
 

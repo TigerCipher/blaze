@@ -20,19 +20,34 @@
 #ifndef BLAZE_SHADER_H
 #define BLAZE_SHADER_H
 
+#include <unordered_map>
+
 #include "Types.h"
 #include <glm/glm.hpp>
 
-namespace blaze::gfx{
+namespace blaze::gfx
+{
 
-class shader{
+struct vertex_attribute
+{
+    i32  location   = -1;
+    i32  count      = -1;
+    u32  type       = u32_invalid_id;
+    bool normalized = false;
+};
+
+class shader
+{
 public:
-    shader(std::string  shader_name);
+    shader(std::string shader_name);
     ~shader();
 
     bool load();
     void bind() const;
     void destroy();
+
+    // This will call both glEnableVertexAttribArray and glVertexAttribPointer
+    void bind_attribute(const std::string& name, const void* pointer, bool normalized = false) const;
 
     void set_bool(const std::string& name, bool value) const;
     void set_int(const std::string& name, i32 value) const;
@@ -43,16 +58,20 @@ public:
     void set_mat4(const std::string& name, const glm::mat4& mat) const;
 
 private:
-    u32 m_id{u32_invalid_id};
+    bool compile(const std::string& vertex_shader, const std::string& fragment_shader);
+
+    u32         m_id{ u32_invalid_id };
     std::string m_name{};
     std::string m_vertex_file{};
     std::string m_fragment_file{};
+    i32         m_total_stride{};
 
-    bool compile(const std::string& vertex_shader, const std::string& fragment_shader);
+    std::unordered_map<std::string, i32>              m_uniforms{};
+    std::unordered_map<std::string, vertex_attribute> m_attributes{};
 };
 
 [[maybe_unused]] void set_shaders_path(const std::string& path);
 
-}
+} // namespace blaze::gfx
 
 #endif //BLAZE_SHADER_H
