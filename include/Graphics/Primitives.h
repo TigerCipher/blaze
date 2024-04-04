@@ -44,7 +44,8 @@ public:
     void create(const shader& shader);
     void destroy();
 
-    void draw() const;
+    void bind() const;
+    void draw(bool also_bind = true) const;
 
 protected:
     u32 m_vao{ u32_invalid_id };

@@ -33,12 +33,16 @@ using namespace blaze;
 
 namespace
 {
+constexpr i32 window_width  = 1280;
+constexpr i32 window_height = 720;
+
 gfx::shader  test{ "coords" };
 gfx::texture container{ "container.jpg" };
 gfx::texture face{ "face.png" };
 gfx::cube    box{ 1.0f };
 glm::mat4    projection;
 
+std::vector<glm::vec3> cube_positions{};
 
 } // anonymous namespace
 
@@ -53,16 +57,25 @@ void render()
 
     glm::mat4 model = glm::mat4(1.0f);
     glm::mat4 view  = glm::mat4(1.0f);
-    model           = glm::rotate(model, get_time(), glm::vec3(0.5f, 1.0f, 0.0f));
     view            = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
 
     test.bind();
-    test.set_mat4("model", model);
     test.set_mat4("view", view);
     test.set_mat4("projection", projection);
 
-    box.draw();
+    box.bind();
+    u32 i = 1;
+    for (const auto& position : cube_positions)
+    {
+        model     = glm::mat4(1.0f);
+        model     = glm::translate(model, position);
+        f32 angle = 20.0f * (f32) i * get_time();
+        model     = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+        test.set_mat4("model", model);
+        box.draw(false);
+        ++i;
+    }
 
     //    blaze::gfx::activate_window("Test");
     //    blaze::gfx::clear_screen(0.f, 0.2f, 0.f);
@@ -83,6 +96,17 @@ void init_sandbox()
         return;
     }
 
+    cube_positions.emplace_back(0.0f, 0.0f, 0.0f);
+    cube_positions.emplace_back(2.0f, 5.0f, -15.0f);
+    cube_positions.emplace_back(-1.5f, -2.2f, -2.5f);
+    cube_positions.emplace_back(-3.8f, -2.0f, -12.3f);
+    cube_positions.emplace_back(2.4f, -0.4f, -3.5f);
+    cube_positions.emplace_back(-1.7f, 3.0f, -7.5f);
+    cube_positions.emplace_back(1.3f, -2.0f, -2.5f);
+    cube_positions.emplace_back(1.5f, 2.0f, -2.5f);
+    cube_positions.emplace_back(1.5f, 0.2f, -1.5f);
+    cube_positions.emplace_back(-1.3f, 1.0f, -1.5f);
+
     box.create(test);
 
     test.bind();
@@ -90,7 +114,7 @@ void init_sandbox()
     test.set_int("texture2", 1);
 
     // TODO: Projection based on current window size
-    projection = glm::perspective(glm::radians(45.0f), 1280.0f / 720.0f, 0.1f, 100.0f);
+    projection = glm::perspective(glm::radians(45.0f), (f32) window_width / (f32) window_height, 0.1f, 100.0f);
 }
 
 int main()
@@ -104,7 +128,7 @@ int main()
         std::cout << "Blaze failed to initialize!" << std::endl;
     }
 
-    if (blaze::create_window("Sandbox", 1280, 720))
+    if (blaze::create_window("Sandbox", window_width, window_height))
     {
         init_sandbox();
         blaze::set_render_function(render);

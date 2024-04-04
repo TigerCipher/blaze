@@ -52,10 +52,18 @@ void primitive::destroy()
     m_vao = m_vbo = u32_invalid_id;
 }
 
-void primitive::draw() const
+void primitive::draw(bool also_bind) const
+{
+    if (also_bind)
+    {
+        bind();
+    }
+    glDrawArrays(GL_TRIANGLES, 0, (i32) m_vertices.size());
+}
+
+void primitive::bind() const
 {
     glBindVertexArray(m_vao);
-    glDrawArrays(GL_TRIANGLES, 0, (i32) m_vertices.size());
 }
 
 
