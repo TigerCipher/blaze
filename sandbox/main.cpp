@@ -32,10 +32,17 @@ using namespace blaze;
 
 namespace
 {
-gfx::shader test{"transform"};
-gfx::texture container{"container.jpg"};
-gfx::texture face{"face.png"};
-u32 vao;
+gfx::shader  test{ "transform" };
+gfx::texture container{ "container.jpg" };
+gfx::texture face{ "face.png" };
+u32          vao;
+
+struct vertex
+{
+    glm::vec3 position;
+    glm::vec2 tex_coords;
+};
+
 } // anonymous namespace
 
 void render()
@@ -48,8 +55,8 @@ void render()
     face.bind();
 
     glm::mat4 transform = glm::mat4(1.0f);
-    transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
-    transform = glm::rotate(transform, get_time(), glm::vec3(0.0f, 0.0f, 1.0f));
+    transform           = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+    transform           = glm::rotate(transform, get_time(), glm::vec3(0.0f, 0.0f, 1.0f));
 
 
     test.bind();
@@ -59,36 +66,37 @@ void render()
     //    GL_CALL(glDrawArrays(GL_TRIANGLES, 0, 3));
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
-//    blaze::gfx::activate_window("Test");
-//    blaze::gfx::clear_screen(0.f, 0.2f, 0.f);
-//
-//    blaze::gfx::activate_window("Test2");
-//    blaze::gfx::clear_screen(0.f, 0.f, 0.2f);
+    //    blaze::gfx::activate_window("Test");
+    //    blaze::gfx::clear_screen(0.f, 0.2f, 0.f);
+    //
+    //    blaze::gfx::activate_window("Test2");
+    //    blaze::gfx::clear_screen(0.f, 0.f, 0.2f);
 }
 
-void init_sandbox(){
-    if(!test.load())
+void init_sandbox()
+{
+    if (!test.load())
     {
         return;
     }
 
-    if(!container.load(true) || !face.load(true))
+    if (!container.load(true) || !face.load(true))
     {
         return;
     }
 
-    u32 vbo, ebo;
-    f32 vertices[] = {
-        // positions             // texture coords
-        0.5f,  0.5f, 0.0f,       1.0f, 1.0f, // top right
-        0.5f, -0.5f, 0.0f,       1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f,      0.0f, 0.0f, // bottom left
-        -0.5f,  0.5f, 0.0f,      0.0f, 1.0f  // top left
+    u32    vbo, ebo;
+    vertex vertices[] = {
+            // positions            // texture coords
+        {   { 0.5f, 0.5f, 0.0f }, { 1.0f, 1.0f } }, // top right
+        {  { 0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f } }, // bottom right
+        { { -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f } }, // bottom left
+        {  { -0.5f, 0.5f, 0.0f }, { 0.0f, 1.0f } }  // top left
     };
 
     u32 indices[] = {
         0, 1, 3, // first triangle
-        1, 2, 3 // second triangle
+        1, 2, 3  // second triangle
     };
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
@@ -102,11 +110,12 @@ void init_sandbox(){
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    test.bind_attribute("aPos", (void*)nullptr);
-    test.bind_attribute("aTexCoord", (void*)(3 * sizeof(f32)));
+    // TODO: Automate the pointer somehow. Maybe store the offset in the attribute struct, and use the previous attribute's offset to get the pointer
+    test.bind_attribute("aPos", (void*) nullptr);
+    test.bind_attribute("aTexCoord", (void*) offsetof(vertex, tex_coords));
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-//    glBindVertexArray(0); -> causes medium severity debug msg: "Program/shader state performance warning: Vertex shader in program 3 is being recompiled based on GL state"
+    //    glBindVertexArray(0); -> causes medium severity debug msg: "Program/shader state performance warning: Vertex shader in program 3 is being recompiled based on GL state"
 
     test.bind();
     test.set_int("texture1", 0);

@@ -30,10 +30,10 @@ namespace blaze::gfx
 
 struct vertex_attribute
 {
-    i32  location   = -1;
-    i32  count      = -1;
-    u32  type       = u32_invalid_id;
-    bool normalized = false;
+    i32  location    = -1;
+    i32  count       = -1;
+    u32  type        = u32_invalid_id;
+    bool normalized  = false;
 };
 
 class shader
