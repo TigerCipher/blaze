@@ -17,6 +17,8 @@ add_library(blaze STATIC
         src/Graphics/Shader.cpp
         include/Graphics/Texture.h
         src/Graphics/Texture.cpp
+        include/Graphics/Primitives.h
+        src/Graphics/Primitives.cpp
 )
 
 target_include_directories(blaze PUBLIC include)
