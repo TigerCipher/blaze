@@ -32,10 +32,11 @@ using namespace blaze;
 
 namespace
 {
-gfx::shader  test{ "transform" };
+gfx::shader  test{ "coords" };
 gfx::texture container{ "container.jpg" };
 gfx::texture face{ "face.png" };
 u32          vao;
+glm::mat4    projection;
 
 struct vertex
 {
@@ -54,17 +55,21 @@ void render()
     gfx::texture::activate_slot(1);
     face.bind();
 
-    glm::mat4 transform = glm::mat4(1.0f);
-    transform           = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
-    transform           = glm::rotate(transform, get_time(), glm::vec3(0.0f, 0.0f, 1.0f));
+    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 view = glm::mat4(1.0f);
+    model = glm::rotate(model, get_time(), glm::vec3(0.5f, 1.0f, 0.0f));
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
 
     test.bind();
-    test.set_mat4("transform", transform);
+    test.set_mat4("model", model);
+    test.set_mat4("view", view);
+    test.set_mat4("projection", projection);
 
     glBindVertexArray(vao);
     //    GL_CALL(glDrawArrays(GL_TRIANGLES, 0, 3));
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+//    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
     //    blaze::gfx::activate_window("Test");
     //    blaze::gfx::clear_screen(0.f, 0.2f, 0.f);
@@ -87,11 +92,34 @@ void init_sandbox()
 
     u32    vbo, ebo;
     vertex vertices[] = {
-            // positions            // texture coords
+  // positions            // texture coords
         {   { 0.5f, 0.5f, 0.0f }, { 1.0f, 1.0f } }, // top right
         {  { 0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f } }, // bottom right
         { { -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f } }, // bottom left
         {  { -0.5f, 0.5f, 0.0f }, { 0.0f, 1.0f } }  // top left
+    };
+
+    // Cube vertices
+    vertex verts[] = {
+  // Back face
+        { { -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f } },
+        { { 0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f } },
+        { { 0.5f, 0.5f, -0.5f }, { 1.0f, 1.0f } },
+        { { -0.5f, 0.5f, -0.5f }, { 0.0f, 1.0f } },
+        // Front face
+        { { -0.5f, -0.5f, 0.5f }, { 0.0f, 0.0f } },
+        { { 0.5f, -0.5f, 0.5f }, { 1.0f, 0.0f } },
+        { { 0.5f, 0.5f, 0.5f }, { 1.0f, 1.0f } },
+        { { -0.5f, 0.5f, 0.5f }, { 0.0f, 1.0f } }
+    };
+
+    u32 cube_indices[] = {
+        0, 1, 3, 3, 1, 2,
+        1, 5, 2, 2, 5, 6,
+        5, 4, 6, 6, 4, 7,
+        4, 0, 7, 7, 0, 3,
+        3, 2, 7, 7, 2, 6,
+        4, 5, 0, 0, 5, 1
     };
 
     u32 indices[] = {
@@ -105,10 +133,10 @@ void init_sandbox()
     glBindVertexArray(vao);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cube_indices), cube_indices, GL_STATIC_DRAW);
 
     // TODO: Automate the pointer somehow. Maybe store the offset in the attribute struct, and use the previous attribute's offset to get the pointer
     test.bind_attribute("aPos", (void*) nullptr);
@@ -120,6 +148,9 @@ void init_sandbox()
     test.bind();
     test.set_int("texture1", 0);
     test.set_int("texture2", 1);
+
+    // TODO: Projection based on current window size
+    projection = glm::perspective(glm::radians(45.0f), 1280.0f / 720.0f, 0.1f, 100.0f);
 }
 
 int main()

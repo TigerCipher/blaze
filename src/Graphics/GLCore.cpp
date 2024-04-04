@@ -101,6 +101,7 @@ bool init()
     glDebugMessageCallback(error_callback, nullptr);
 #endif
 
+    glEnable(GL_DEPTH_TEST);
     is_init = true;
     return true;
 }
