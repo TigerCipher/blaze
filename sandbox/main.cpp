@@ -23,6 +23,7 @@
 #include "Graphics/Shader.h"
 #include "Graphics/Texture.h"
 #include "Graphics/Primitives.h"
+#include "Core/Input.h"
 
 #include <GL/glew.h>
 
@@ -46,8 +47,17 @@ std::vector<glm::vec3> cube_positions{};
 
 } // anonymous namespace
 
-void render()
+void render(f32 delta)
 {
+    if (keyboard::is_key_down(key::a))
+    {
+        LOG_INFO("A is down");
+    }
+    if (keyboard::was_key_down(key::three))
+    {
+        LOG_INFO("3 was pressed");
+    }
+
     blaze::gfx::clear_screen(0.2f, 0.f, 0.f);
 
     gfx::texture::activate_slot(0);

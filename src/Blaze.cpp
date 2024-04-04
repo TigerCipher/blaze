@@ -20,7 +20,8 @@
 
 #include <SDL.h>
 
-#include "Graphics/GLCore.h"
+#include "Core/Input.h"
+
 
 namespace blaze
 {
@@ -33,7 +34,7 @@ std::string                                   default_window{};
 std::string                                   current_window{};
 std::unordered_map<std::string, uptr<window>> window_map{};
 
-std::function<void()> render_function;
+std::function<void(f32)> render_function;
 } // anonymous namespace
 
 bool init()
@@ -74,23 +75,16 @@ void run()
     running = true;
 
     u32 frame_counter = 0;
-    f32 timer         = get_time();
+    f32 fps_timer     = get_time();
+
+    f32 delta_time = 0.0f;
+    f32 last_frame = 0.0f;
 
     while (running)
     {
-        if (window_map.size() > 1)
-        {
-            gfx::activate_window(default_window);
-        }
-        render_function();
-        ++frame_counter;
-
-        if (get_time() - timer > 1.0f)
-        {
-            LOG_TRACE("FPS: {}", frame_counter);
-            frame_counter = 0;
-            timer         = get_time();
-        }
+        f32 current_frame = get_time();
+        delta_time        = current_frame - last_frame;
+        last_frame        = current_frame;
 
         SDL_Event event;
         while (SDL_PollEvent(&event))
@@ -111,7 +105,26 @@ void run()
                 running = false;
                 break;
             }
+            mouse::process(event);
+            keyboard::process(event);
         }
+
+        if (window_map.size() > 1)
+        {
+            gfx::activate_window(default_window);
+        }
+        render_function(delta_time);
+        ++frame_counter;
+
+        if (get_time() - fps_timer > 1.0f)
+        {
+            LOG_TRACE("FPS: {}", frame_counter);
+            frame_counter = 0;
+            fps_timer     = get_time();
+        }
+
+        mouse::update();
+        keyboard::update();
 
         if (window_map.size() == 1)
         {
@@ -151,7 +164,7 @@ void destroy_window(const std::string& title)
         window_map.erase(it);
     }
 }
-void set_render_function(const std::function<void()>& rf)
+void set_render_function(const std::function<void(f32)>& rf)
 {
     render_function = rf;
 }

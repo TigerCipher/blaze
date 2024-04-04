@@ -19,6 +19,10 @@ add_library(blaze STATIC
         src/Graphics/Texture.cpp
         include/Graphics/Primitives.h
         src/Graphics/Primitives.cpp
+        include/Core/Camera.h
+        src/Core/Camera.cpp
+        include/Core/Input.h
+        src/Core/Input.cpp
 )
 
 target_include_directories(blaze PUBLIC include)

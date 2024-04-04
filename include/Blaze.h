@@ -37,7 +37,7 @@ const std::unordered_map<std::string, uptr<window>>& windows();
 bool create_window(const std::string& title, i32 width, i32 height);
 void destroy_window(const std::string& title);
 
-void set_render_function(const std::function<void()>& render_function);
+void set_render_function(const std::function<void(f32)>& render_function);
 
 f32 get_time();
 
