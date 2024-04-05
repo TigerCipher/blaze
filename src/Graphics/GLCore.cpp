@@ -19,9 +19,11 @@
 #include "Graphics/GLCore.h"
 #include "Graphics/Shader.h"
 #include "Graphics/Texture.h"
+#include "Core/Logger.h"
 
 #include <gl/glew.h>
 #include <iostream>
+#include <sstream>
 
 // a bit useless with the error callback, but can be helpful for tracking down errors
 #define GL_CALL(x)                                                                                                               \
@@ -86,23 +88,40 @@ bool init()
     {
         return false;
     }
+    LOG_INFO("Initializing OpenGL");
     glewExperimental = true;
     u32 status       = glewInit();
     if (status != GLEW_OK)
     {
-        std::cerr << "GLEW failed to initialize: " << glewGetErrorString(status) << std::endl;
+        std::stringstream ss;
+        ss << glewGetErrorString(status);
+        LOG_FATAL("Failed to initialize OpenGL with error: {}", ss.str());
         return false;
     }
 
     glGetError(); // Clear any errors that glewInit may have caused
+
 #ifdef _DEBUG
-    std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+    std::stringstream ss;
+    ss << glGetString(GL_VERSION);
+    LOG_INFO("OpenGL Version: {}", ss.str());
+    ss = {};
+    ss << glGetString(GL_SHADING_LANGUAGE_VERSION);
+    LOG_INFO("OpenGL Shading Language Version: {}", ss.str());
+    ss = {};
+    ss << glGetString(GL_VENDOR);
+    LOG_INFO("OpenGL Vendor: {}", ss.str());
+    ss = {};
+    ss << glGetString(GL_RENDERER);
+    LOG_INFO("OpenGL Renderer: {}", ss.str());
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageCallback(error_callback, nullptr);
 #endif
 
     glEnable(GL_DEPTH_TEST);
     is_init = true;
+
+    LOG_INFO("OpenGL initialized");
     return true;
 }
 

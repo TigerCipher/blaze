@@ -98,6 +98,7 @@ bool init(camera* pcam, const std::function<void(f32)>& render_func, const std::
     {
         return false;
     }
+    LOG_INFO("Initializing Blaze");
     if (!init_graphics())
     {
         return false;
@@ -106,6 +107,7 @@ bool init(camera* pcam, const std::function<void(f32)>& render_func, const std::
     render_function = render_func;
     update_function = update_func;
     is_init         = true;
+    LOG_INFO("Blaze initialized");
     return true;
 }
 

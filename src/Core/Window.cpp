@@ -36,11 +36,12 @@ bool window::create(const std::string& title, i32 width, i32 height)
     {
         return false;
     }
+    LOG_INFO("Creating window: {} ({}x{})", title, width, height);
 
     m_window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
     if (!m_window)
     {
-        // TODO: Log error
+        LOG_FATAL("Failed to create window. Error: {}", SDL_GetError());
         return false;
     }
     m_width = width;
@@ -49,7 +50,7 @@ bool window::create(const std::string& title, i32 width, i32 height)
     m_context = SDL_GL_CreateContext(m_window);
     if (!m_context)
     {
-        // TODO: Log error
+        LOG_FATAL("Failed to create OpenGL context. Error: {}", SDL_GetError());
         return false;
     }
 
@@ -62,6 +63,7 @@ bool window::create(const std::string& title, i32 width, i32 height)
     gfx::init();
 
     m_alive = true;
+    LOG_INFO("Window created successfully");
     return true;
 }
 
@@ -81,7 +83,7 @@ void window::destroy()
     {
         return;
     }
-
+    LOG_INFO("Destroying window '{}'", SDL_GetWindowTitle(m_window));
     SDL_GL_DeleteContext(m_context);
     SDL_DestroyWindow(m_window);
     m_alive = false;
@@ -99,15 +101,16 @@ void window::activate()
 
 bool init_graphics()
 {
+    LOG_INFO("Initializing SDL2");
     if (SDL_Init(SDL_INIT_VIDEO))
     {
-        // TODO: Log error
+        LOG_ERROR("Failed to initialize SDL2. Error: {}", SDL_GetError());
         return false;
     }
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 
     // 8 bits per rgba channel
@@ -120,6 +123,7 @@ bool init_graphics()
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
     is_init = true;
+    LOG_INFO("SDL2 initialized");
     return true;
 }
 
@@ -129,6 +133,7 @@ void shutdown_graphics()
     {
         return;
     }
+    LOG_INFO("Shutting down SDL2");
     SDL_Quit();
     is_init = false;
 }
