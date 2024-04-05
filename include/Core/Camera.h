@@ -64,12 +64,13 @@ private:
     glm::vec3 m_world_up{ 0.0f, 1.0f, 0.0f };
     glm::mat4 m_projection{};
 
-    f32 m_yaw   = default_yaw;
-    f32 m_pitch = default_pitch;
-
+    f32 m_yaw               = default_yaw;
+    f32 m_pitch             = default_pitch;
     f32 m_movement_speed    = default_speed;
     f32 m_mouse_sensitivity = default_sensitivity;
     f32 m_zoom              = default_zoom;
+
+    bool update_needed = true;
 
     void update_vectors();
 };

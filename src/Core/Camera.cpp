@@ -100,7 +100,6 @@ void camera::process_mouse_movement(f32 x_offset, f32 y_offset, bool constrain_p
 void camera::process_mouse_scroll(f32 y_offset)
 {
     constexpr f32 max_zoom = 45.0f;
-    f32           old_zoom = m_zoom;
     m_zoom -= y_offset;
     if (m_zoom < 1.0f)
     {

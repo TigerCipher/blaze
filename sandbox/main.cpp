@@ -74,7 +74,6 @@ void update(f32 delta)
 
 void render(f32 delta)
 {
-    update(delta);
     blaze::gfx::clear_screen(0.2f, 0.f, 0.f);
 
     gfx::texture::activate_slot(0);
@@ -138,18 +137,13 @@ void init_sandbox()
     test.set_int("texture1", 0);
     test.set_int("texture2", 1);
 
-    // TODO: Projection based on current window size
-    set_camera(&cam);
     mouse::lock_cursor(true);
-//    mouse::show_cursor(true);
-
-    cam.set_projection(cam.zoom(), (f32)window_width / (f32)window_height, 0.1f, 100.0f);
 }
 
 int main()
 {
     LOG_INFO("Sandbox started");
-    if (blaze::init())
+    if (blaze::init(&cam, render, update))
     {
         std::cout << "Sandbox can run now" << std::endl;
     } else
@@ -160,7 +154,6 @@ int main()
     if (blaze::create_window("Sandbox", window_width, window_height))
     {
         init_sandbox();
-        blaze::set_render_function(render);
         blaze::run();
     }
 
