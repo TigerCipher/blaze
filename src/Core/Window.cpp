@@ -93,10 +93,10 @@ SDL_Window* window::handle() const
     return m_window;
 }
 
-void window::activate()
-{
-    SDL_GL_MakeCurrent(m_window, m_context);
-}
+//void window::activate()
+//{
+//    SDL_GL_MakeCurrent(m_window, m_context);
+//}
 
 
 bool init_graphics()

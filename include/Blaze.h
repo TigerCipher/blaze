@@ -29,23 +29,19 @@
 
 namespace blaze
 {
-bool init(camera* pcam, const std::function<void(f32)>& render_function, const std::function<void(f32)> &update_function);
+
+
+bool init(camera* pcam, const std::function<void(f32)>& render_function, const std::function<void(f32)>& update_function);
 void shutdown();
 void run();
 
-const std::unordered_map<std::string, uptr<window>>& windows();
 
 bool create_window(const std::string& title, i32 width, i32 height);
-void destroy_window(const std::string& title);
 
 void exit_now();
 
 f32 get_time();
 
-namespace gfx
-{
-void activate_window(const std::string& title);
-} // namespace gfx
 } // namespace blaze
 
 #endif //BLAZE_BLAZE_H

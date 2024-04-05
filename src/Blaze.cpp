@@ -28,11 +28,10 @@ namespace blaze
 
 namespace
 {
-bool                                          running = false;
-bool                                          is_init = false;
-std::string                                   default_window{};
-std::string                                   current_window{};
-std::unordered_map<std::string, uptr<window>> window_map{};
+bool running = false;
+bool is_init = false;
+
+window win{};
 
 std::function<void(f32)> render_function;
 std::function<void(f32)> update_function;
@@ -44,17 +43,6 @@ bool process_events()
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
-        if ((event.type == SDL_WINDOWEVENT) && (event.window.event == SDL_WINDOWEVENT_CLOSE))
-        {
-            for (auto& [title, window] : window_map)
-            {
-                if (SDL_GetWindowFromID(event.window.windowID) == window->handle())
-                {
-                    window->destroy();
-                    break;
-                }
-            }
-        }
         if (event.type == SDL_QUIT)
         {
             return false;
@@ -81,9 +69,7 @@ bool process_events()
         if (event.type == SDL_MOUSEWHEEL)
         {
             cam->process_mouse_scroll(mouse::scroll());
-            cam->set_projection(cam->zoom(),
-                                (f32) window_map[current_window]->width() / (f32) window_map[current_window]->height(), 0.1f,
-                                100.0f);
+            cam->set_projection(cam->zoom(), win.aspect_ratio(), 0.1f, 100.0f);
         }
     }
     return true;
@@ -117,10 +103,7 @@ void shutdown()
     {
         return;
     }
-    for (auto& [title, window] : window_map)
-    {
-        window->destroy();
-    }
+    win.destroy();
 
     shutdown_graphics();
     is_init = false;
@@ -145,7 +128,7 @@ void run()
     f32 delta_time;
     f32 last_frame = 0.0f;
 
-    cam->set_projection(cam->zoom(), (f32) window_map[current_window]->width() / (f32) window_map[current_window]->height(), 0.1f,
+    cam->set_projection(cam->zoom(), win.aspect_ratio(), 0.1f,
                         100.0f);
 
     while (running)
@@ -156,10 +139,7 @@ void run()
 
         running = process_events();
         update_function(delta_time);
-        if (window_map.size() > 1)
-        {
-            gfx::activate_window(default_window);
-        }
+
         render_function(delta_time);
         ++frame_counter;
 
@@ -173,44 +153,15 @@ void run()
         mouse::update();
         keyboard::update();
 
-        if (window_map.size() == 1)
-        {
-            window_map[default_window]->swap();
-        }
+        win.swap();
     }
-}
-
-const std::unordered_map<std::string, uptr<window>>& windows()
-{
-    return window_map;
 }
 
 bool create_window(const std::string& title, i32 width, i32 height)
 {
-    auto window = make_uptr<blaze::window>();
-    if (window->create(title, width, height))
-    {
-        window_map.emplace(title, std::move(window));
-        // First created window will be the default window to render to
-        if (current_window.empty())
-        {
-            default_window = title;
-            current_window = title;
-        }
-        return true;
-    }
-    return false;
+    return win.create(title, width, height);
 }
 
-void destroy_window(const std::string& title)
-{
-    auto it = window_map.find(title);
-    if (it != window_map.end())
-    {
-        it->second->destroy();
-        window_map.erase(it);
-    }
-}
 
 f32 get_time()
 {
@@ -222,18 +173,4 @@ void exit_now()
     running = false;
 }
 
-
-void gfx::activate_window(const std::string& title)
-{
-    auto it = window_map.find(title);
-    if (it != window_map.end())
-    {
-        if (current_window != title)
-        {
-            window_map[current_window]->swap();
-            current_window = title;
-        }
-        it->second->activate();
-    }
-}
 } // namespace blaze

@@ -100,12 +100,6 @@ void render(f32 delta)
         box.draw(false);
         ++i;
     }
-
-    //    blaze::gfx::activate_window("Test");
-    //    blaze::gfx::clear_screen(0.f, 0.2f, 0.f);
-    //
-    //    blaze::gfx::activate_window("Test2");
-    //    blaze::gfx::clear_screen(0.f, 0.f, 0.2f);
 }
 
 void init_sandbox()

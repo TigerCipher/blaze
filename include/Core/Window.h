@@ -24,22 +24,25 @@
 
 #include "Types.h"
 
-class SDL_Window;
+struct SDL_Window;
+
 namespace blaze
 {
 
+// TODO: Make this class generic so it can be used for other windowing libraries
 class window
 {
 public:
     bool create(const std::string& title, i32 width, i32 height);
     void swap();
     void destroy();
-    void activate();
 
     constexpr i32 width() const { return m_width; }
     constexpr i32 height() const { return m_height; }
 
     SDL_Window* handle() const;
+
+    constexpr f32 aspect_ratio() const { return (f32) m_width / (f32) m_height; }
 
 private:
     i32         m_width{};
