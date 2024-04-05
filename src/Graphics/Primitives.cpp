@@ -29,11 +29,14 @@ void primitive::create(const shader& shader)
     glBindVertexArray(m_vao);
 
     glGenBuffers(1, &m_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, (i64) (m_vertices.size() * sizeof(vertex)), m_vertices.data(), GL_STATIC_DRAW);
+    bind_buffer_data();
 
-    shader.bind_attribute("aPos", (void*) offsetof(vertex, position));
-    shader.bind_attribute("aTexCoord", (void*) offsetof(vertex, tex_coords));
+
+    // loop through attrib map and bind each one
+    for (const auto& [name, offset] : m_attrib_offsets)
+    {
+        shader.bind_attribute(name, (void*) offset);
+    }
 }
 
 primitive::~primitive()
@@ -58,62 +61,12 @@ void primitive::draw(bool also_bind) const
     {
         bind();
     }
-    glDrawArrays(GL_TRIANGLES, 0, (i32) m_vertices.size());
+    glDrawArrays(GL_TRIANGLES, 0, (i32) m_count);
 }
 
 void primitive::bind() const
 {
     glBindVertexArray(m_vao);
-}
-
-
-cube::cube(f32 size)
-{
-    f32 half_size = size / 2.0f;
-    // 36 vertices for a cube
-    m_vertices = {
-        { { -half_size, -half_size, -half_size }, { 0.0f, 0.0f } },
-        {  { half_size, -half_size, -half_size }, { 1.0f, 0.0f } },
-        {   { half_size, half_size, -half_size }, { 1.0f, 1.0f } },
-        {   { half_size, half_size, -half_size }, { 1.0f, 1.0f } },
-        {  { -half_size, half_size, -half_size }, { 0.0f, 1.0f } },
-        { { -half_size, -half_size, -half_size }, { 0.0f, 0.0f } },
-
-        {  { -half_size, -half_size, half_size }, { 0.0f, 0.0f } },
-        {   { half_size, -half_size, half_size }, { 1.0f, 0.0f } },
-        {    { half_size, half_size, half_size }, { 1.0f, 1.0f } },
-        {    { half_size, half_size, half_size }, { 1.0f, 1.0f } },
-        {   { -half_size, half_size, half_size }, { 0.0f, 1.0f } },
-        {  { -half_size, -half_size, half_size }, { 0.0f, 0.0f } },
-
-        {   { -half_size, half_size, half_size }, { 1.0f, 0.0f } },
-        {  { -half_size, half_size, -half_size }, { 1.0f, 1.0f } },
-        { { -half_size, -half_size, -half_size }, { 0.0f, 1.0f } },
-        { { -half_size, -half_size, -half_size }, { 0.0f, 1.0f } },
-        {  { -half_size, -half_size, half_size }, { 0.0f, 0.0f } },
-        {   { -half_size, half_size, half_size }, { 1.0f, 0.0f } },
-
-        {    { half_size, half_size, half_size }, { 1.0f, 0.0f } },
-        {   { half_size, half_size, -half_size }, { 1.0f, 1.0f } },
-        {  { half_size, -half_size, -half_size }, { 0.0f, 1.0f } },
-        {  { half_size, -half_size, -half_size }, { 0.0f, 1.0f } },
-        {   { half_size, -half_size, half_size }, { 0.0f, 0.0f } },
-        {    { half_size, half_size, half_size }, { 1.0f, 0.0f } },
-
-        { { -half_size, -half_size, -half_size }, { 0.0f, 1.0f } },
-        {  { half_size, -half_size, -half_size }, { 1.0f, 1.0f } },
-        {   { half_size, -half_size, half_size }, { 1.0f, 0.0f } },
-        {   { half_size, -half_size, half_size }, { 1.0f, 0.0f } },
-        {  { -half_size, -half_size, half_size }, { 0.0f, 0.0f } },
-        { { -half_size, -half_size, -half_size }, { 0.0f, 1.0f } },
-
-        {  { -half_size, half_size, -half_size }, { 0.0f, 1.0f } },
-        {   { half_size, half_size, -half_size }, { 1.0f, 1.0f } },
-        {    { half_size, half_size, half_size }, { 1.0f, 0.0f } },
-        {    { half_size, half_size, half_size }, { 1.0f, 0.0f } },
-        {   { -half_size, half_size, half_size }, { 0.0f, 0.0f } },
-        {  { -half_size, half_size, -half_size }, { 0.0f, 1.0f } }
-    };
 }
 
 } // namespace blaze::gfx

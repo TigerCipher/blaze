@@ -63,15 +63,18 @@ const char* get_error_string(GLenum error)
 void GLAPIENTRY error_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message,
                                const void* user_param)
 {
-    if(severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+    if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
         return;
     std::string severity_str;
-    switch(severity){
-        case GL_DEBUG_SEVERITY_HIGH: severity_str = "HIGH"; break;
-        case GL_DEBUG_SEVERITY_MEDIUM: severity_str = "MEDIUM"; break;
-        case GL_DEBUG_SEVERITY_LOW: severity_str = "LOW"; break;
-//        case GL_DEBUG_SEVERITY_NOTIFICATION: severity_str = "NOTIFICATION"; break;
-        default: severity_str = "UNKNOWN"; break;
+    switch (severity)
+    {
+    case GL_DEBUG_SEVERITY_HIGH: severity_str = "HIGH"; break;
+    case GL_DEBUG_SEVERITY_MEDIUM: severity_str = "MEDIUM"; break;
+    case GL_DEBUG_SEVERITY_LOW:
+        severity_str = "LOW";
+        break;
+        //        case GL_DEBUG_SEVERITY_NOTIFICATION: severity_str = "NOTIFICATION"; break;
+    default: severity_str = "UNKNOWN"; break;
     }
     std::cerr << "---------------------opengl-error-callback-start------------" << std::endl;
     std::cerr << "Severity: " << severity << " - " << severity_str << std::endl;
@@ -129,6 +132,12 @@ void clear_screen(f32 r, f32 g, f32 b)
 {
     glClearColor(r, g, b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void buffer_data(u32 vbo, i64 size, const void* data)
+{
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
 }
 
 

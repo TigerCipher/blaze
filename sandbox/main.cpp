@@ -41,7 +41,7 @@ constexpr i32 window_height = 720;
 gfx::shader  test{ "coords" };
 gfx::texture container{ "container.jpg" };
 gfx::texture face{ "face.png" };
-gfx::cube    box{ 1.0f };
+gfx::cube<gfx::vertex_position_texcoords> box(1.0f);
 camera       cam{};
 
 std::vector<glm::vec3> cube_positions{};
