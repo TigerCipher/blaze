@@ -73,16 +73,26 @@ void camera::process_mouse_movement(f32 x_offset, f32 y_offset, bool constrain_p
         {
             m_pitch = -89.0f;
         }
+    } else
+    {
+        if (m_pitch > 360.0f)
+        {
+            m_pitch -= 360.0f;
+        }
+        if (m_pitch < -360.0f)
+        {
+            m_pitch += 360.0f;
+        }
     }
 
-//    if (m_yaw > 360.0f)
-//    {
-//        m_yaw -= 360.0f;
-//    }
-//    if (m_yaw < 0.0f)
-//    {
-//        m_yaw += 360.0f;
-//    }
+    if (m_yaw > 360.0f)
+    {
+        m_yaw -= 360.0f;
+    }
+    if (m_yaw < -360.0f)
+    {
+        m_yaw += 360.0f;
+    }
 
     update_vectors();
 }
