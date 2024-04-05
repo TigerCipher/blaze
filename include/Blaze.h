@@ -25,6 +25,7 @@
 
 #include "Core/Window.h"
 #include "Core/Logger.h"
+#include "Core/Camera.h"
 
 namespace blaze
 {
@@ -38,6 +39,9 @@ bool create_window(const std::string& title, i32 width, i32 height);
 void destroy_window(const std::string& title);
 
 void set_render_function(const std::function<void(f32)>& render_function);
+void set_camera(camera* pcam);
+
+void exit_now();
 
 f32 get_time();
 

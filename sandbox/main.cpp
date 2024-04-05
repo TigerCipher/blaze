@@ -24,6 +24,7 @@
 #include "Graphics/Texture.h"
 #include "Graphics/Primitives.h"
 #include "Core/Input.h"
+#include "Core/Camera.h"
 
 #include <GL/glew.h>
 
@@ -41,23 +42,39 @@ gfx::shader  test{ "coords" };
 gfx::texture container{ "container.jpg" };
 gfx::texture face{ "face.png" };
 gfx::cube    box{ 1.0f };
-glm::mat4    projection;
+camera       cam{};
 
 std::vector<glm::vec3> cube_positions{};
 
 } // anonymous namespace
 
-void render(f32 delta)
+void update(f32 delta)
 {
+    if (keyboard::is_key_down(key::escape))
+    {
+        blaze::exit_now();
+    }
+    if (keyboard::is_key_down(key::w))
+    {
+        cam.process_keyboard(direction::forward, delta);
+    }
+    if (keyboard::is_key_down(key::s))
+    {
+        cam.process_keyboard(direction::backward, delta);
+    }
     if (keyboard::is_key_down(key::a))
     {
-        LOG_INFO("A is down");
+        cam.process_keyboard(direction::left, delta);
     }
-    if (keyboard::was_key_down(key::three))
+    if (keyboard::is_key_down(key::d))
     {
-        LOG_INFO("3 was pressed");
+        cam.process_keyboard(direction::right, delta);
     }
+}
 
+void render(f32 delta)
+{
+    update(delta);
     blaze::gfx::clear_screen(0.2f, 0.f, 0.f);
 
     gfx::texture::activate_slot(0);
@@ -66,13 +83,11 @@ void render(f32 delta)
     face.bind();
 
     glm::mat4 model = glm::mat4(1.0f);
-    glm::mat4 view  = glm::mat4(1.0f);
-    view            = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
 
     test.bind();
-    test.set_mat4("view", view);
-    test.set_mat4("projection", projection);
+    test.set_mat4("view", cam.view_matrix());
+    test.set_mat4("projection", cam.projection());
 
     box.bind();
     u32 i = 1;
@@ -80,7 +95,7 @@ void render(f32 delta)
     {
         model     = glm::mat4(1.0f);
         model     = glm::translate(model, position);
-        f32 angle = 20.0f * (f32) i * get_time();
+        f32 angle = 20.0f * (f32) i; // * get_time();
         model     = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
         test.set_mat4("model", model);
         box.draw(false);
@@ -124,7 +139,11 @@ void init_sandbox()
     test.set_int("texture2", 1);
 
     // TODO: Projection based on current window size
-    projection = glm::perspective(glm::radians(45.0f), (f32) window_width / (f32) window_height, 0.1f, 100.0f);
+    set_camera(&cam);
+    mouse::lock_cursor(true);
+//    mouse::show_cursor(true);
+
+    cam.set_projection(cam.zoom(), (f32)window_width / (f32)window_height, 0.1f, 100.0f);
 }
 
 int main()

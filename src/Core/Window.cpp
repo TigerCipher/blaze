@@ -43,6 +43,8 @@ bool window::create(const std::string& title, i32 width, i32 height)
         // TODO: Log error
         return false;
     }
+    m_width = width;
+    m_height = height;
 
     m_context = SDL_GL_CreateContext(m_window);
     if (!m_context)

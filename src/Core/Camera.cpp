@@ -17,6 +17,7 @@
 //
 //  ------------------------------------------------------------------------------
 #include "Core/Camera.h"
+#include "glm/ext/matrix_clip_space.hpp"
 #include <glm/ext/matrix_transform.hpp>
 
 namespace blaze
@@ -74,12 +75,22 @@ void camera::process_mouse_movement(f32 x_offset, f32 y_offset, bool constrain_p
         }
     }
 
+//    if (m_yaw > 360.0f)
+//    {
+//        m_yaw -= 360.0f;
+//    }
+//    if (m_yaw < 0.0f)
+//    {
+//        m_yaw += 360.0f;
+//    }
+
     update_vectors();
 }
 
 void camera::process_mouse_scroll(f32 y_offset)
 {
     constexpr f32 max_zoom = 45.0f;
+    f32           old_zoom = m_zoom;
     m_zoom -= y_offset;
     if (m_zoom < 1.0f)
     {
@@ -100,6 +111,11 @@ void camera::update_vectors()
     m_front = glm::normalize(front);
     m_right = glm::normalize(glm::cross(m_front, m_world_up));
     m_up    = glm::normalize(glm::cross(m_right, m_front));
+}
+
+void camera::set_projection(f32 fov, f32 aspect_ratio, f32 near, f32 far)
+{
+    m_projection = glm::perspective(glm::radians(fov), aspect_ratio, near, far);
 }
 
 

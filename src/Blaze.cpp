@@ -35,6 +35,7 @@ std::string                                   current_window{};
 std::unordered_map<std::string, uptr<window>> window_map{};
 
 std::function<void(f32)> render_function;
+camera*                  cam{};
 } // anonymous namespace
 
 bool init()
@@ -68,6 +69,11 @@ void shutdown()
 
 void run()
 {
+    if (!cam)
+    {
+        LOG_FATAL("No camera set!");
+        return;
+    }
     if (!is_init || running)
     {
         return;
@@ -107,6 +113,30 @@ void run()
             }
             mouse::process(event);
             keyboard::process(event);
+
+            if (event.type == SDL_MOUSEMOTION)
+            {
+                f32 xoffset, yoffset;
+                if (mouse::is_cursor_locked())
+                {
+                    xoffset = (f32) event.motion.xrel;
+                    yoffset = -(f32) event.motion.yrel;
+                } else
+                {
+                    xoffset = mouse::position().x - mouse::previous_position().x;
+                    yoffset = mouse::previous_position().y - mouse::position().y;
+                }
+
+                cam->process_mouse_movement(xoffset, yoffset);
+            }
+
+            cam->process_mouse_scroll(mouse::scroll());
+            if (event.type == SDL_MOUSEWHEEL)
+            {
+                cam->set_projection(cam->zoom(),
+                                    (f32) window_map[current_window]->width() / (f32) window_map[current_window]->height(), 0.1f,
+                                    100.0f);
+            }
         }
 
         if (window_map.size() > 1)
@@ -172,6 +202,16 @@ void set_render_function(const std::function<void(f32)>& rf)
 f32 get_time()
 {
     return (f32) SDL_GetPerformanceCounter() / (f32) SDL_GetPerformanceFrequency();
+}
+
+void set_camera(camera* pcam)
+{
+    cam = pcam;
+}
+
+void exit_now()
+{
+    running = false;
 }
 
 

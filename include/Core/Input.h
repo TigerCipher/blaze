@@ -53,6 +53,10 @@ bool is_button_up(buttons button);
 bool was_button_down(buttons button);
 bool was_button_up(buttons button);
 f32  scroll();
+void show_cursor(bool show);
+void set_position(f32 x, f32 y);
+void lock_cursor(bool lock);
+bool is_cursor_locked();
 
 point position();
 point previous_position();

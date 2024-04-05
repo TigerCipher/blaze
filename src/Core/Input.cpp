@@ -42,6 +42,7 @@ struct input_state
     mouse_state previous{};
 };
 
+bool is_locked{false};
 input_state state{};
 
 } // anonymous namespace
@@ -129,6 +130,29 @@ point position()
 point previous_position()
 {
     return { state.previous.x, state.previous.y };
+}
+
+void show_cursor(bool show)
+{
+    SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
+}
+
+void set_position(f32 x, f32 y)
+{
+    SDL_WarpMouseInWindow(nullptr, (i32) x, (i32) y);
+    state.current.x = x;
+    state.current.y = y;
+}
+
+void lock_cursor(bool lock)
+{
+    is_locked = lock;
+    SDL_SetRelativeMouseMode(lock ? SDL_TRUE : SDL_FALSE);
+}
+
+bool is_cursor_locked()
+{
+    return is_locked;
 }
 
 

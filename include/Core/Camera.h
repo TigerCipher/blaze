@@ -40,11 +40,15 @@ public:
     camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), f32 yaw = default_yaw,
            f32 pitch = default_pitch);
 
-    glm::mat4 view_matrix() const;
+    glm::mat4     view_matrix() const;
+    constexpr f32 zoom() const { return m_zoom; }
 
     void process_keyboard(direction dir, f32 delta_time);
     void process_mouse_movement(f32 x_offset, f32 y_offset, bool constrain_pitch = true);
     void process_mouse_scroll(f32 y_offset);
+    void set_projection(f32 fov, f32 aspect_ratio, f32 near, f32 far);
+
+    const glm::mat4& projection() const { return m_projection; }
 
 private:
     constexpr static f32 default_yaw         = -90.0f;
@@ -58,6 +62,7 @@ private:
     glm::vec3 m_up{ 0.0f, 1.0f, 0.0f };
     glm::vec3 m_right{ 1.0f, 0.0f, 0.0f };
     glm::vec3 m_world_up{ 0.0f, 1.0f, 0.0f };
+    glm::mat4 m_projection{};
 
     f32 m_yaw   = default_yaw;
     f32 m_pitch = default_pitch;
