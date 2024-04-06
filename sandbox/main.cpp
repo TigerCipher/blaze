@@ -85,7 +85,9 @@ void render(f32 delta)
     test.bind();
     test.set_mat4("view", cam.view_matrix());
     test.set_mat4("projection", cam.projection());
-    test.set_vec3("lightPos", glm::vec3(1.2f, 1.0f, 2.0f));
+    glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+    test.set_vec3("lightPos", lightPos);
+    test.set_vec3("viewPos", cam.position());
 
     glm::mat4 model = glm::mat4(1.0f);
     test.set_mat4("model", model);
@@ -94,7 +96,7 @@ void render(f32 delta)
     light_cube_shader.bind();
     light_cube_shader.set_mat4("view", cam.view_matrix());
     light_cube_shader.set_mat4("projection", cam.projection());
-    model = glm::translate(model, glm::vec3(1.2f, 1.0f, 2.0f));
+    model = glm::translate(model, lightPos);
     light_cube_shader.set_mat4("model", model);
     light_cube.draw();
 }
@@ -110,7 +112,6 @@ void init_sandbox()
     {
         return;
     }
-
     cam.set_position({ 0.f, 0.f, 3.f });
 
     box.create(test);
