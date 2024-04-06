@@ -19,16 +19,18 @@
 #include "Graphics/Primitives.h"
 
 #include <gl/glew.h>
+#include "Graphics/GLCore.h"
+
 
 namespace blaze::gfx
 {
 
 void primitive::create(const shader& shader)
 {
-    glGenVertexArrays(1, &m_vao);
-    glBindVertexArray(m_vao);
+    GL_CALL(glGenVertexArrays(1, &m_vao));
+    GL_CALL(glBindVertexArray(m_vao));
 
-    glGenBuffers(1, &m_vbo);
+    GL_CALL(glGenBuffers(1, &m_vbo));
     bind_buffer_data();
 
 
@@ -61,12 +63,12 @@ void primitive::draw(bool also_bind) const
     {
         bind();
     }
-    glDrawArrays(GL_TRIANGLES, 0, (i32) m_count);
+    GL_CALL(glDrawArrays(GL_TRIANGLES, 0, (i32) m_count));
 }
 
 void primitive::bind() const
 {
-    glBindVertexArray(m_vao);
+    GL_CALL(glBindVertexArray(m_vao));
 }
 
 } // namespace blaze::gfx

@@ -16,13 +16,15 @@
 //     limitations under the License.
 //
 //  ------------------------------------------------------------------------------
+#include "Graphics/Shader.h"
+
 #include <fstream>
 #include <sstream>
 #include <utility>
-#include <GL/glew.h>
 
-#include "Graphics/Shader.h"
+#include <GL/glew.h>
 #include "Core/Logger.h"
+#include "Graphics/GLCore.h"
 
 namespace blaze::gfx
 {
@@ -154,6 +156,8 @@ i32 get_stride(u32 type)
 
 } // anonymous namespace
 
+u32 shader::s_bound_shader = 0;
+
 shader::shader(std::string shader_name) : m_name(std::move(shader_name)) {}
 
 bool shader::load()
@@ -185,7 +189,7 @@ bool shader::compile(const std::string& vertex_shader, const std::string& fragme
     // Compile vertex shader
     u32 vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vsrc, nullptr);
-    glCompileShader(vertex);
+    GL_CALL(glCompileShader(vertex));
     if (check_error(vertex, "VERTEX"))
     {
         glDeleteShader(vertex);
@@ -196,7 +200,7 @@ bool shader::compile(const std::string& vertex_shader, const std::string& fragme
     // Compile fragment shader
     u32 fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fsrc, nullptr);
-    glCompileShader(fragment);
+    GL_CALL(glCompileShader(fragment));
     if (check_error(fragment, "FRAGMENT"))
     {
         glDeleteShader(vertex);
@@ -207,9 +211,9 @@ bool shader::compile(const std::string& vertex_shader, const std::string& fragme
     LOG_DEBUG("[{}] Linking shaders", m_name);
     // Link shaders
     m_id = glCreateProgram();
-    glAttachShader(m_id, vertex);
-    glAttachShader(m_id, fragment);
-    glLinkProgram(m_id);
+    GL_CALL(glAttachShader(m_id, vertex));
+    GL_CALL(glAttachShader(m_id, fragment));
+    GL_CALL(glLinkProgram(m_id));
     if (check_error(m_id, "PROGRAM"))
     {
         glDeleteShader(vertex);
@@ -263,7 +267,9 @@ shader::~shader()
 
 void shader::bind() const
 {
-    glUseProgram(m_id);
+    if(s_bound_shader == m_id) return;
+    GL_CALL(glUseProgram(m_id));
+    s_bound_shader = m_id;
 }
 
 void shader::destroy()
@@ -315,9 +321,15 @@ void shader::bind_attribute(const std::string& name, const void* pointer, bool n
     {
         vertex_attribute attr     = it->second;
         u32              location = attr.location;
-        glVertexAttribPointer(location, attr.count, attr.type, attr.normalized, m_total_stride, pointer);
-        glEnableVertexAttribArray(location);
+        GL_CALL(glVertexAttribPointer(location, attr.count, attr.type, attr.normalized, m_total_stride, pointer));
+        GL_CALL(glEnableVertexAttribArray(location));
     }
+}
+
+void shader::unbind()
+{
+    GL_CALL(glUseProgram(0));
+    s_bound_shader = 0;
 }
 
 

@@ -30,10 +30,10 @@ namespace blaze::gfx
 
 struct vertex_attribute
 {
-    i32  location    = -1;
-    i32  count       = -1;
-    u32  type        = u32_invalid_id;
-    bool normalized  = false;
+    i32  location   = -1;
+    i32  count      = -1;
+    u32  type       = u32_invalid_id;
+    bool normalized = false;
 };
 
 class shader
@@ -57,6 +57,8 @@ public:
     void set_vec4(const std::string& name, const glm::vec4& value) const;
     void set_mat4(const std::string& name, const glm::mat4& mat) const;
 
+    static void unbind();
+
 private:
     bool compile(const std::string& vertex_shader, const std::string& fragment_shader);
 
@@ -68,6 +70,8 @@ private:
 
     std::unordered_map<std::string, i32>              m_uniforms{};
     std::unordered_map<std::string, vertex_attribute> m_attributes{};
+
+    static u32 s_bound_shader;
 };
 
 [[maybe_unused]] void set_shaders_path(const std::string& path);

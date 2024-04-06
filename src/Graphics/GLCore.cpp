@@ -25,17 +25,6 @@
 #include <iostream>
 #include <sstream>
 
-// a bit useless with the error callback, but can be helpful for tracking down errors
-#define GL_CALL(x)                                                                                                               \
-    x;                                                                                                                           \
-    {                                                                                                                            \
-        GLenum error = glGetError();                                                                                             \
-        if (error != GL_NO_ERROR)                                                                                                \
-        {                                                                                                                        \
-            std::cerr << "OpenGL Error: " << error << ", " << get_error_string(error) << std::endl;                              \
-            std::cerr << "---- in file: " << __FILE__ << " at line " << __LINE__ << std::endl;                                   \
-        }                                                                                                                        \
-    }
 
 namespace blaze::gfx
 {
@@ -136,8 +125,8 @@ void clear_screen(f32 r, f32 g, f32 b)
 
 void buffer_data(u32 vbo, i64 size, const void* data)
 {
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+    GL_CALL(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
 }
 
 

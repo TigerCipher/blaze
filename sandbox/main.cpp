@@ -122,6 +122,7 @@ void init_sandbox()
     test.set_vec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
     //    test.set_int("texture1", 0);
     //    test.set_int("texture2", 1);
+    gfx::shader::unbind();
 
     mouse::lock_cursor(true);
 }
