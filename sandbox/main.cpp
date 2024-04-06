@@ -38,13 +38,13 @@ namespace
 constexpr i32 window_width  = 1280;
 constexpr i32 window_height = 720;
 
-gfx::shader  test{ "coords" };
-gfx::texture container{ "container.jpg" };
-gfx::texture face{ "face.png" };
-gfx::cube<gfx::vertex_position_texcoords> box(1.0f);
-camera       cam{};
-
-std::vector<glm::vec3> cube_positions{};
+gfx::shader                     test{ "color" };
+gfx::shader                     light_cube_shader{ "light_cube" };
+gfx::texture                    container{ "container.jpg" };
+gfx::texture                    face{ "face.png" };
+gfx::cube<gfx::vertex_position> box(1.0f);
+gfx::cube<gfx::vertex_position> light_cube(0.2f);
+camera                          cam{};
 
 } // anonymous namespace
 
@@ -81,30 +81,27 @@ void render(f32 delta)
     gfx::texture::activate_slot(1);
     face.bind();
 
-    glm::mat4 model = glm::mat4(1.0f);
 
 
     test.bind();
     test.set_mat4("view", cam.view_matrix());
     test.set_mat4("projection", cam.projection());
 
-    box.bind();
-    u32 i = 1;
-    for (const auto& position : cube_positions)
-    {
-        model     = glm::mat4(1.0f);
-        model     = glm::translate(model, position);
-        f32 angle = 20.0f * (f32) i; // * get_time();
-        model     = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-        test.set_mat4("model", model);
-        box.draw(false);
-        ++i;
-    }
+    glm::mat4 model = glm::mat4(1.0f);
+    test.set_mat4("model", model);
+    box.draw();
+
+    light_cube_shader.bind();
+    light_cube_shader.set_mat4("view", cam.view_matrix());
+    light_cube_shader.set_mat4("projection", cam.projection());
+    model = glm::translate(model, glm::vec3(1.2f, 1.0f, 2.0f));
+    light_cube_shader.set_mat4("model", model);
+    light_cube.draw();
 }
 
 void init_sandbox()
 {
-    if (!test.load())
+    if (!test.load() || !light_cube_shader.load())
     {
         return;
     }
@@ -114,22 +111,15 @@ void init_sandbox()
         return;
     }
 
-    cube_positions.emplace_back(0.0f, 0.0f, 0.0f);
-    cube_positions.emplace_back(2.0f, 5.0f, -15.0f);
-    cube_positions.emplace_back(-1.5f, -2.2f, -2.5f);
-    cube_positions.emplace_back(-3.8f, -2.0f, -12.3f);
-    cube_positions.emplace_back(2.4f, -0.4f, -3.5f);
-    cube_positions.emplace_back(-1.7f, 3.0f, -7.5f);
-    cube_positions.emplace_back(1.3f, -2.0f, -2.5f);
-    cube_positions.emplace_back(1.5f, 2.0f, -2.5f);
-    cube_positions.emplace_back(1.5f, 0.2f, -1.5f);
-    cube_positions.emplace_back(-1.3f, 1.0f, -1.5f);
 
     box.create(test);
+    light_cube.create(light_cube_shader);
 
     test.bind();
-    test.set_int("texture1", 0);
-    test.set_int("texture2", 1);
+    test.set_vec3("objectColor", glm::vec3(1.0f, 0.5f, 0.3f));
+    test.set_vec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+    //    test.set_int("texture1", 0);
+    //    test.set_int("texture2", 1);
 
     mouse::lock_cursor(true);
 }
