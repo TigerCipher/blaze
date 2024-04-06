@@ -48,7 +48,14 @@ public:
     void process_mouse_scroll(f32 y_offset);
     void set_projection(f32 fov, f32 aspect_ratio, f32 near, f32 far);
 
-    const glm::mat4& projection() const { return m_projection; }
+    void set_position(const glm::vec3& position) { m_position = position; }
+
+    constexpr const glm::mat4& projection() const { return m_projection; }
+
+    constexpr const glm::vec3& position() const { return m_position; }
+    constexpr const glm::vec3& front() const { return m_front; }
+    constexpr const glm::vec3& up() const { return m_up; }
+    constexpr const glm::vec3& right() const { return m_right; }
 
 private:
     constexpr static f32 default_yaw         = -90.0f;

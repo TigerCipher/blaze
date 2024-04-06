@@ -38,13 +38,13 @@ namespace
 constexpr i32 window_width  = 1280;
 constexpr i32 window_height = 720;
 
-gfx::shader                     test{ "color" };
-gfx::shader                     light_cube_shader{ "light_cube" };
-gfx::texture                    container{ "container.jpg" };
-gfx::texture                    face{ "face.png" };
-gfx::cube<gfx::vertex_position> box(1.0f);
-gfx::cube<gfx::vertex_position> light_cube(0.2f);
-camera                          cam{};
+gfx::shader                            test{ "lighting" };
+gfx::shader                            light_cube_shader{ "light_cube" };
+gfx::texture                           container{ "container.jpg" };
+gfx::texture                           face{ "face.png" };
+gfx::cube<gfx::vertex_position_normal> box(1.0f); // TODO: Probably more efficient to use this for the lamp too and just ignore the normal
+gfx::cube<gfx::vertex_position>        light_cube(0.2f);
+camera                                 cam{};
 
 } // anonymous namespace
 
@@ -82,10 +82,10 @@ void render(f32 delta)
     face.bind();
 
 
-
     test.bind();
     test.set_mat4("view", cam.view_matrix());
     test.set_mat4("projection", cam.projection());
+    test.set_vec3("lightPos", glm::vec3(1.2f, 1.0f, 2.0f));
 
     glm::mat4 model = glm::mat4(1.0f);
     test.set_mat4("model", model);
@@ -111,6 +111,7 @@ void init_sandbox()
         return;
     }
 
+    cam.set_position({ 0.f, 0.f, 3.f });
 
     box.create(test);
     light_cube.create(light_cube_shader);
