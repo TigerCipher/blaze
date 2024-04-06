@@ -24,11 +24,9 @@
 #include "Graphics/Texture.h"
 #include "Graphics/Primitives.h"
 #include "Core/Input.h"
-#include "Core/Camera.h"
+#include "Graphics/Material.h"
+#include "Graphics/Light.h"
 
-#include <GL/glew.h>
-
-#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 using namespace blaze;
@@ -38,13 +36,16 @@ namespace
 constexpr i32 window_width  = 1280;
 constexpr i32 window_height = 720;
 
-gfx::shader                            test{ "lighting" };
-gfx::shader                            light_cube_shader{ "light_cube" };
-gfx::texture                           container{ "container.jpg" };
-gfx::texture                           face{ "face.png" };
-gfx::cube<gfx::vertex_position_normal> box(1.0f); // TODO: Probably more efficient to use this for the lamp too and just ignore the normal
-gfx::cube<gfx::vertex_position>        light_cube(0.2f);
-camera                                 cam{};
+gfx::shader  test{ "lighting" };
+gfx::shader  light_cube_shader{ "light_cube" };
+gfx::texture container{ "container.jpg" };
+gfx::texture face{ "face.png" };
+gfx::cube<gfx::vertex_position_normal>
+    box(1.0f); // TODO: Probably more efficient to use this for the lamp too and just ignore the normal
+gfx::cube<gfx::vertex_position> light_cube(0.2f);
+camera                          cam{};
+gfx::material                   box_material{};
+gfx::light                      light{};
 
 } // anonymous namespace
 
@@ -85,9 +86,16 @@ void render(f32 delta)
     test.bind();
     test.set_mat4("view", cam.view_matrix());
     test.set_mat4("projection", cam.projection());
-    glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-    test.set_vec3("lightPos", lightPos);
+
     test.set_vec3("viewPos", cam.position());
+    glm::vec3 color;
+    color.x = sin(get_time() * 2.0f);
+    color.y = sin(get_time() * 0.7f);
+    color.z = sin(get_time() * 1.3f);
+    light.diffuse  = color * 0.5f;
+    light.ambient  = color * 0.2f;
+    gfx::bind_light(test, light);
+    gfx::bind_material(test, box_material);
 
     glm::mat4 model = glm::mat4(1.0f);
     test.set_mat4("model", model);
@@ -96,7 +104,7 @@ void render(f32 delta)
     light_cube_shader.bind();
     light_cube_shader.set_mat4("view", cam.view_matrix());
     light_cube_shader.set_mat4("projection", cam.projection());
-    model = glm::translate(model, lightPos);
+    model = glm::translate(model, light.position);
     light_cube_shader.set_mat4("model", model);
     light_cube.draw();
 }
@@ -117,12 +125,15 @@ void init_sandbox()
     box.create(test);
     light_cube.create(light_cube_shader);
 
-    test.bind();
-    test.set_vec3("objectColor", glm::vec3(1.0f, 0.5f, 0.3f));
-    test.set_vec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-    //    test.set_int("texture1", 0);
-    //    test.set_int("texture2", 1);
-    gfx::shader::unbind();
+    light.position = glm::vec3(1.2f, 1.0f, 2.0f);
+    light.ambient  = glm::vec3(0.2f, 0.2f, 0.2f);
+    light.diffuse  = glm::vec3(0.5f, 0.5f, 0.5f);
+    light.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+
+    box_material.ambient  = glm::vec3(1.0f, 0.5f, 0.3f);
+    box_material.diffuse  = glm::vec3(1.0f, 0.5f, 0.3f);
+    box_material.specular = glm::vec3(0.5f, 0.5f, 0.5f);
+    box_material.shininess = 32.0f;
 
     mouse::lock_cursor(true);
 }

@@ -23,6 +23,10 @@ add_library(blaze STATIC
         src/Core/Camera.cpp
         include/Core/Input.h
         src/Core/Input.cpp
+        include/Graphics/Material.h
+        src/Graphics/Material.cpp
+        include/Graphics/Light.h
+        src/Graphics/Light.cpp
 )
 
 target_include_directories(blaze PUBLIC include)
