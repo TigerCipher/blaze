@@ -35,9 +35,9 @@ glm::mat4 camera::view_matrix() const
     return glm::lookAt(m_position, m_position + m_front, m_up);
 }
 
-void camera::process_keyboard(direction dir, f32 delta_time)
+void camera::process_keyboard(direction dir, f64 delta_time)
 {
-    f32 velocity = m_movement_speed * delta_time;
+    f32 velocity = m_movement_speed * (f32)delta_time;
     if (dir == direction::forward)
     {
         m_position += m_front * velocity;

@@ -43,12 +43,21 @@ public:
     glm::mat4     view_matrix() const;
     constexpr f32 zoom() const { return m_zoom; }
 
-    void process_keyboard(direction dir, f32 delta_time);
+    void process_keyboard(direction dir, f64 delta_time);
     void process_mouse_movement(f32 x_offset, f32 y_offset, bool constrain_pitch = true);
     void process_mouse_scroll(f32 y_offset);
     void set_projection(f32 fov, f32 aspect_ratio, f32 near, f32 far);
 
     void set_position(const glm::vec3& position) { m_position = position; }
+    void set_movement_speed(f32 speed) { m_movement_speed = speed; }
+    void set_mouse_sensitivity(f32 sensitivity) { m_mouse_sensitivity = sensitivity; }
+    void set_zoom(f32 zoom) { m_zoom = zoom; }
+
+
+    constexpr f32 yaw() const { return m_yaw; }
+    constexpr f32 pitch() const { return m_pitch; }
+    constexpr f32 movement_speed() const { return m_movement_speed; }
+    constexpr f32 mouse_sensitivity() const { return m_mouse_sensitivity; }
 
     constexpr const glm::mat4& projection() const { return m_projection; }
 

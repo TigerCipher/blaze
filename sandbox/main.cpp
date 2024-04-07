@@ -43,10 +43,10 @@ gfx::texture container{ "container2.png" };
 gfx::texture container_specular{ "container2_specular.png" };
 gfx::texture face{ "face.png" };
 
-gfx::cube<gfx::vertex_position>     light_cube(0.2f);
-camera                              cam{};
-gfx::light                          light{};
-gfx::material                       box_material{};
+gfx::cube<gfx::vertex_position> light_cube(0.2f);
+camera                          cam{};
+gfx::light                      light{};
+gfx::material                   box_material{};
 
 // TODO: should be managed by blaze. And maybe shared pointers are better for individual transformations and whatnot
 // (i.e see below where we currently do render_items[0]->set_model(model); we instead want to be able to do box_item.set_model...)
@@ -77,6 +77,17 @@ void update(f64 delta)
     {
         cam.process_keyboard(direction::right, delta);
     }
+    if (keyboard::is_key_down(key::space))
+    {
+        cam.set_position({ 0.f, 0.f, 3.f });
+    }
+    if (keyboard::is_key_down(key::lshift))
+    {
+        cam.set_movement_speed(8.0f);
+    } else
+    {
+        cam.set_movement_speed(2.5f);
+    }
 }
 
 void render(f64 delta)
@@ -98,7 +109,7 @@ void render(f64 delta)
     //    gfx::bind_material(test, box_material);
 
     glm::mat4 model = glm::mat4(1.0f);
-//    model = glm::rotate(model, get_time(), glm::vec3(1.0f, 0.0f, 1.0f));
+    //    model = glm::rotate(model, get_time(), glm::vec3(1.0f, 0.0f, 1.0f));
     render_items[0]->set_model(model);
 
     for (const auto& item : render_items)
@@ -128,7 +139,8 @@ void init_sandbox()
     cam.set_position({ 0.f, 0.f, 3.f });
 
     // TODO: Probably more efficient to use this for the lamp too and just ignore the normal
-    sptr<gfx::cube<gfx::vertex_position_normal_texcoords>> box = make_sptr<gfx::cube<gfx::vertex_position_normal_texcoords>>(1.0f);
+    sptr<gfx::cube<gfx::vertex_position_normal_texcoords>> box =
+        make_sptr<gfx::cube<gfx::vertex_position_normal_texcoords>>(1.0f);
     box->create(test);
 
     light_cube.create(light_cube_shader);
