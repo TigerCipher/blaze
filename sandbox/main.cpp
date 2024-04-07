@@ -38,9 +38,10 @@ constexpr i32 window_height = 720;
 
 gfx::shader  test{ "lighting" };
 gfx::shader  light_cube_shader{ "light_cube" };
-gfx::texture container{ "container.jpg" };
+gfx::texture container{ "container2.png" };
+gfx::texture container_specular{ "container2_specular.png" };
 gfx::texture face{ "face.png" };
-gfx::cube<gfx::vertex_position_normal>
+gfx::cube<gfx::vertex_position_normal_texcoords>
     box(1.0f); // TODO: Probably more efficient to use this for the lamp too and just ignore the normal
 gfx::cube<gfx::vertex_position> light_cube(0.2f);
 camera                          cam{};
@@ -77,10 +78,8 @@ void render(f32 delta)
 {
     blaze::gfx::clear_screen(0.2f, 0.f, 0.f);
 
-    gfx::texture::activate_slot(0);
     container.bind();
-    gfx::texture::activate_slot(1);
-    face.bind();
+    container_specular.bind(1);
 
 
     test.bind();
@@ -88,12 +87,8 @@ void render(f32 delta)
     test.set_mat4("projection", cam.projection());
 
     test.set_vec3("viewPos", cam.position());
-    glm::vec3 color;
-    color.x = sin(get_time() * 2.0f);
-    color.y = sin(get_time() * 0.7f);
-    color.z = sin(get_time() * 1.3f);
-    light.diffuse  = color * 0.5f;
-    light.ambient  = color * 0.2f;
+    light.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+    light.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
     gfx::bind_light(test, light);
     gfx::bind_material(test, box_material);
 
@@ -116,7 +111,7 @@ void init_sandbox()
         return;
     }
 
-    if (!container.load(true) || !face.load(true))
+    if (!container.load(true) || !face.load(true) || !container_specular.load(true))
     {
         return;
     }
@@ -130,10 +125,39 @@ void init_sandbox()
     light.diffuse  = glm::vec3(0.5f, 0.5f, 0.5f);
     light.specular = glm::vec3(1.0f, 1.0f, 1.0f);
 
-    box_material.ambient  = glm::vec3(1.0f, 0.5f, 0.3f);
-    box_material.diffuse  = glm::vec3(1.0f, 0.5f, 0.3f);
-    box_material.specular = glm::vec3(0.5f, 0.5f, 0.5f);
-    box_material.shininess = 32.0f;
+
+    // TODO: Generally, diffuse, specular, etc textures will always be at the same slots
+    // Instead, material should have a texture, and there can be multiple materials. I.e a wood material for the box
+    // The bind function would activate the texture slots, bind the material data, and bind the textures
+    // Something like:
+    // void bind_material(const shader& shader, const material& mat)
+    //    mat.diffuse_texture.bind();
+    //    mat.specular_texture.bind(1);
+    //    shader.bind();
+    //    shader.set_int("material.diffuse", 0); // these really only need to be bound at init, since the data will never change
+    //    shader.set_int("material.specular", 1);
+    //    shader.set_float("material.shininess", mat.shininess);
+    // In the long run, use would look something like:
+    // material mat;
+    // mat.diffuse_texture = container;
+    // mat.specular_texture = container_specular;
+    // mat.shininess = 32.0f;
+    // render_item item;
+    // item.material = mat;
+    // item.mesh = box;
+    // item.transform = glm::mat4(1.0f);
+    // render_items.push_back(item);
+    // Then in the render loop:
+    // for (const auto& item : render_items)
+    // {
+    //     bind_material(item.material);
+    //     item.mesh.draw();
+    // }
+    // TODO: The above, or something similar, should be considered
+    box_material.diffuse_texture  = 0;
+    box_material.specular_texture = 1;
+    box_material.shininess        = 32.0f;
+
 
     mouse::lock_cursor(true);
 }

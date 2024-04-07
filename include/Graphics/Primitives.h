@@ -41,9 +41,18 @@ struct vertex_position_texcoords : vertex_position
     vertex_position_texcoords(glm::vec3 pos, glm::vec2 tex) : vertex_position{ pos }, texcoords{ tex } {}
 };
 
-struct vertex_position_normal : vertex_position {
+struct vertex_position_normal : vertex_position
+{
     glm::vec3 normal;
     vertex_position_normal(glm::vec3 pos, glm::vec3 norm) : vertex_position{ pos }, normal{ norm } {}
+};
+
+struct vertex_position_normal_texcoords : vertex_position_normal
+{
+    glm::vec2 texcoords;
+    vertex_position_normal_texcoords(glm::vec3 pos, glm::vec3 norm, glm::vec2 tex) :
+        vertex_position_normal{ pos, norm }, texcoords{ tex }
+    {}
 };
 
 class primitive
@@ -158,9 +167,10 @@ public:
             m_vertices.emplace_back(glm::vec3   { -half_size, half_size, half_size }, glm::vec2{ 0.0f, 0.0f });
             m_vertices.emplace_back(glm::vec3  { -half_size, half_size, -half_size }, glm::vec2{ 0.0f, 1.0f });
             // clang-format on
-            m_attrib_offsets["aPos"]      = (void*) offsetof(vertex_position_texcoords, position);
-            m_attrib_offsets["aTexCoord"] = (void*) offsetof(vertex_position_texcoords, texcoords);
-        }else if constexpr (std::same_as<T, vertex_position_normal>){
+            m_attrib_offsets["aPos"]       = (void*) offsetof(vertex_position_texcoords, position);
+            m_attrib_offsets["aTexCoords"] = (void*) offsetof(vertex_position_texcoords, texcoords);
+        } else if constexpr (std::same_as<T, vertex_position_normal>)
+        {
             // clang-format off
             m_vertices.emplace_back(glm::vec3 { -half_size, -half_size, -half_size }, glm::vec3{ 0.0f, 0.0f, -1.0f });
             m_vertices.emplace_back(glm::vec3  { half_size, -half_size, -half_size }, glm::vec3{ 0.0f, 0.0f, -1.0f });
@@ -199,21 +209,60 @@ public:
             m_vertices.emplace_back(glm::vec3   { -half_size, half_size, half_size }, glm::vec3{ 0.0f, 1.0f, 0.0f });
             m_vertices.emplace_back(glm::vec3  { -half_size, half_size, -half_size }, glm::vec3{ 0.0f, 1.0f, 0.0f });
             // clang-format on
-            m_attrib_offsets["aPos"] = (void*) offsetof(vertex_position_normal, position);
+            m_attrib_offsets["aPos"]    = (void*) offsetof(vertex_position_normal, position);
             m_attrib_offsets["aNormal"] = (void*) offsetof(vertex_position_normal, normal);
+        } else if constexpr (std::same_as<T, vertex_position_normal_texcoords>)
+        {
+            // clang-format off
+            m_vertices.emplace_back(glm::vec3 { -half_size, -half_size, -half_size }, glm::vec3{ 0.0f, 0.0f, -1.0f }, glm::vec2{ 0.0f, 0.0f });
+            m_vertices.emplace_back(glm::vec3  { half_size, -half_size, -half_size }, glm::vec3{ 0.0f, 0.0f, -1.0f }, glm::vec2{ 1.0f, 0.0f });
+            m_vertices.emplace_back(glm::vec3   { half_size, half_size, -half_size }, glm::vec3{ 0.0f, 0.0f, -1.0f }, glm::vec2{ 1.0f, 1.0f });
+            m_vertices.emplace_back(glm::vec3   { half_size, half_size, -half_size }, glm::vec3{ 0.0f, 0.0f, -1.0f }, glm::vec2{ 1.0f, 1.0f });
+            m_vertices.emplace_back(glm::vec3  { -half_size, half_size, -half_size }, glm::vec3{ 0.0f, 0.0f, -1.0f }, glm::vec2{ 0.0f, 1.0f });
+            m_vertices.emplace_back(glm::vec3 { -half_size, -half_size, -half_size }, glm::vec3{ 0.0f, 0.0f, -1.0f }, glm::vec2{ 0.0f, 0.0f });
+            m_vertices.emplace_back(glm::vec3  { -half_size, -half_size, half_size }, glm::vec3{ 0.0f, 0.0f, 1.0f } , glm::vec2{ 0.0f, 0.0f });
+            m_vertices.emplace_back(glm::vec3   { half_size, -half_size, half_size }, glm::vec3{ 0.0f, 0.0f, 1.0f } , glm::vec2{ 1.0f, 0.0f });
+            m_vertices.emplace_back(glm::vec3    { half_size, half_size, half_size }, glm::vec3{ 0.0f, 0.0f, 1.0f } , glm::vec2{ 1.0f, 1.0f });
+            m_vertices.emplace_back(glm::vec3    { half_size, half_size, half_size }, glm::vec3{ 0.0f, 0.0f, 1.0f } , glm::vec2{ 1.0f, 1.0f });
+            m_vertices.emplace_back(glm::vec3   { -half_size, half_size, half_size }, glm::vec3{ 0.0f, 0.0f, 1.0f } , glm::vec2{ 0.0f, 1.0f });
+            m_vertices.emplace_back(glm::vec3  { -half_size, -half_size, half_size }, glm::vec3{ 0.0f, 0.0f, 1.0f } , glm::vec2{ 0.0f, 0.0f });
+            m_vertices.emplace_back(glm::vec3   { -half_size, half_size, half_size }, glm::vec3{ -1.0f, 0.0f, 0.0f }, glm::vec2{ 1.0f, 0.0f });
+            m_vertices.emplace_back(glm::vec3  { -half_size, half_size, -half_size }, glm::vec3{ -1.0f, 0.0f, 0.0f }, glm::vec2{ 1.0f, 1.0f });
+            m_vertices.emplace_back(glm::vec3 { -half_size, -half_size, -half_size }, glm::vec3{ -1.0f, 0.0f, 0.0f }, glm::vec2{ 0.0f, 1.0f });
+            m_vertices.emplace_back(glm::vec3 { -half_size, -half_size, -half_size }, glm::vec3{ -1.0f, 0.0f, 0.0f }, glm::vec2{ 0.0f, 1.0f });
+            m_vertices.emplace_back(glm::vec3  { -half_size, -half_size, half_size }, glm::vec3{ -1.0f, 0.0f, 0.0f }, glm::vec2{ 0.0f, 0.0f });
+            m_vertices.emplace_back(glm::vec3   { -half_size, half_size, half_size }, glm::vec3{ -1.0f, 0.0f, 0.0f }, glm::vec2{ 1.0f, 0.0f });
+            m_vertices.emplace_back(glm::vec3    { half_size, half_size, half_size }, glm::vec3{ 1.0f, 0.0f, 0.0f } , glm::vec2{ 1.0f, 0.0f });
+            m_vertices.emplace_back(glm::vec3   { half_size, half_size, -half_size }, glm::vec3{ 1.0f, 0.0f, 0.0f } , glm::vec2{ 1.0f, 1.0f });
+            m_vertices.emplace_back(glm::vec3  { half_size, -half_size, -half_size }, glm::vec3{ 1.0f, 0.0f, 0.0f } , glm::vec2{ 0.0f, 1.0f });
+            m_vertices.emplace_back(glm::vec3  { half_size, -half_size, -half_size }, glm::vec3{ 1.0f, 0.0f, 0.0f } , glm::vec2{ 0.0f, 1.0f });
+            m_vertices.emplace_back(glm::vec3   { half_size, -half_size, half_size }, glm::vec3{ 1.0f, 0.0f, 0.0f } , glm::vec2{ 0.0f, 0.0f });
+            m_vertices.emplace_back(glm::vec3    { half_size, half_size, half_size }, glm::vec3{ 1.0f, 0.0f, 0.0f } , glm::vec2{ 1.0f, 0.0f });
+            m_vertices.emplace_back(glm::vec3 { -half_size, -half_size, -half_size }, glm::vec3{ 0.0f, -1.0f, 0.0f }, glm::vec2{ 0.0f, 1.0f });
+            m_vertices.emplace_back(glm::vec3  { half_size, -half_size, -half_size }, glm::vec3{ 0.0f, -1.0f, 0.0f }, glm::vec2{ 1.0f, 1.0f });
+            m_vertices.emplace_back(glm::vec3   { half_size, -half_size, half_size }, glm::vec3{ 0.0f, -1.0f, 0.0f }, glm::vec2{ 1.0f, 0.0f });
+            m_vertices.emplace_back(glm::vec3   { half_size, -half_size, half_size }, glm::vec3{ 0.0f, -1.0f, 0.0f }, glm::vec2{ 1.0f, 0.0f });
+            m_vertices.emplace_back(glm::vec3  { -half_size, -half_size, half_size }, glm::vec3{ 0.0f, -1.0f, 0.0f }, glm::vec2{ 0.0f, 0.0f });
+            m_vertices.emplace_back(glm::vec3 { -half_size, -half_size, -half_size }, glm::vec3{ 0.0f, -1.0f, 0.0f }, glm::vec2{ 0.0f, 1.0f });
+            m_vertices.emplace_back(glm::vec3  { -half_size, half_size, -half_size }, glm::vec3{ 0.0f, 1.0f, 0.0f } , glm::vec2{ 0.0f, 1.0f });
+            m_vertices.emplace_back(glm::vec3   { half_size, half_size, -half_size }, glm::vec3{ 0.0f, 1.0f, 0.0f } , glm::vec2{ 1.0f, 1.0f });
+            m_vertices.emplace_back(glm::vec3    { half_size, half_size, half_size }, glm::vec3{ 0.0f, 1.0f, 0.0f } , glm::vec2{ 1.0f, 0.0f });
+            m_vertices.emplace_back(glm::vec3    { half_size, half_size, half_size }, glm::vec3{ 0.0f, 1.0f, 0.0f } , glm::vec2{ 1.0f, 0.0f });
+            m_vertices.emplace_back(glm::vec3   { -half_size, half_size, half_size }, glm::vec3{ 0.0f, 1.0f, 0.0f } , glm::vec2{ 0.0f, 0.0f });
+            m_vertices.emplace_back(glm::vec3  { -half_size, half_size, -half_size }, glm::vec3{ 0.0f, 1.0f, 0.0f } , glm::vec2{ 0.0f, 1.0f });
+            // clang-format on
+            m_attrib_offsets["aPos"]       = (void*) offsetof(vertex_position_normal_texcoords, position);
+            m_attrib_offsets["aNormal"]    = (void*) offsetof(vertex_position_normal_texcoords, normal);
+            m_attrib_offsets["aTexCoords"] = (void*) offsetof(vertex_position_normal_texcoords, texcoords);
         }
 
         m_count = m_vertices.size();
     }
 
-    void bind_buffer_data() const override
-    {
-        buffer_data(m_vbo, (i64)m_vertices.size() * sizeof(T), m_vertices.data());
-    }
+    void bind_buffer_data() const override { buffer_data(m_vbo, (i64) m_vertices.size() * sizeof(T), m_vertices.data()); }
 
 private:
     std::vector<T> m_vertices{};
-
 };
 
 } // namespace blaze::gfx

@@ -35,7 +35,7 @@ public:
     bool load(bool flip = true);
     void unload();
 
-    void bind() const;
+    void bind(u32 slot = 0) const;
 
     constexpr u32 id() const { return m_id; }
     constexpr i32 width() const { return m_width; }

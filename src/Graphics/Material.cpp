@@ -22,9 +22,8 @@ namespace blaze::gfx
 {
 void bind_material(const shader& shader, const material& mat)
 {
-    shader.set_vec3("material.ambient", mat.ambient);
-    shader.set_vec3("material.diffuse", mat.diffuse);
-    shader.set_vec3("material.specular", mat.specular);
+    shader.set_int("material.diffuse", mat.diffuse_texture);
+    shader.set_int("material.specular", mat.specular_texture);
     shader.set_float("material.shininess", mat.shininess);
 }
 } // namespace blaze::gfx

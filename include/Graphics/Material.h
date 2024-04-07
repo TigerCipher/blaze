@@ -30,10 +30,9 @@ namespace blaze::gfx
 
 struct material
 {
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
-    f32       shininess;
+    i32 diffuse_texture;
+    i32 specular_texture;
+    f32 shininess;
 };
 
 void bind_material(const shader& shader, const material& mat);

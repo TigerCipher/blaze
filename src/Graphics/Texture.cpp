@@ -92,8 +92,9 @@ void texture::unload()
     }
 }
 
-void texture::bind() const
+void texture::bind(u32 slot) const
 {
+    glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, m_id);
 }
 
