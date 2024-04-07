@@ -129,5 +129,23 @@ void buffer_data(u32 vbo, i64 size, const void* data)
     GL_CALL(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
 }
 
+void bind_vertex_vec2_attribute(u32 location, i32 stride, const void* offset, bool normalized)
+{
+    GL_CALL(glVertexAttribPointer(location, 2, GL_FLOAT, normalized ? GL_TRUE : GL_FALSE, stride, offset));
+    GL_CALL(glEnableVertexAttribArray(location));
+}
+
+void bind_vertex_vec3_attribute(u32 location, i32 stride, const void* offset, bool normalized)
+{
+    GL_CALL(glVertexAttribPointer(location, 3, GL_FLOAT, normalized ? GL_TRUE : GL_FALSE, stride, offset));
+    GL_CALL(glEnableVertexAttribArray(location));
+}
+
+void bind_vertex_vec4_attribute(u32 location, i32 stride, const void* offset, bool normalized)
+{
+    GL_CALL(glVertexAttribPointer(location, 4, GL_FLOAT, normalized ? GL_TRUE : GL_FALSE, stride, offset));
+    GL_CALL(glEnableVertexAttribArray(location));
+}
+
 
 } // namespace blaze::gfx

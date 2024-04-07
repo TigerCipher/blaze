@@ -53,6 +53,10 @@ void clear_screen(f32 r, f32 g, f32 b);
 // This also binds the buffer
 void buffer_data(u32 vbo, i64 size, const void* data);
 
+void bind_vertex_vec2_attribute(u32 location, i32 stride, const void* offset, bool normalized = false);
+void bind_vertex_vec3_attribute(u32 location, i32 stride, const void* offset, bool normalized = false);
+void bind_vertex_vec4_attribute(u32 location, i32 stride, const void* offset, bool normalized = false);
+
 } // namespace blaze::gfx
 
 #endif //BLAZE_GLCORE_H

@@ -136,12 +136,12 @@ void init_sandbox()
 
     sptr<gfx::cube<gfx::vertex_position_normal_texcoords>> box =
         make_sptr<gfx::cube<gfx::vertex_position_normal_texcoords>>(1.0f);
-    box->create(test);
+    box->create();
 
     // Bit ugly, but this is a way to have light_cube share the vbo with box, which is more efficient
-    sptr<gfx::cube<gfx::vertex_position_normal_texcoords>> light_cube =
-        make_sptr<gfx::cube<gfx::vertex_position_normal_texcoords>>(box);
-    light_cube->create_from_existing_vbo(test, 1); // pass in test shader so the attribute binding gets the correct stride
+    sptr<gfx::cube<gfx::vertex_position>> light_cube =
+        make_sptr<gfx::cube<gfx::vertex_position>>(box);
+    light_cube->create();
     // TODO: Might be cleaner to make attributes bind from the mesh rather than shader
     // total stride can be gotten from the vertex rather than attribute info?
     // Though doing it from the shader will get the names and locations automatically

@@ -25,20 +25,21 @@
 namespace blaze::gfx
 {
 
-void primitive::create(const shader& shader)
+void primitive::create()
 {
     GL_CALL(glGenVertexArrays(1, &m_vao));
     GL_CALL(glBindVertexArray(m_vao));
 
-    GL_CALL(glGenBuffers(1, &m_vbo));
-    bind_buffer_data();
-
-
-    // loop through attrib map and bind each one
-    for (const auto& [name, offset] : m_attrib_offsets)
+    if (m_owns_vbo)
     {
-        shader.bind_attribute(name, (void*) offset);
+        GL_CALL(glGenBuffers(1, &m_vbo));
+        bind_buffer_data();
+    } else
+    {
+        GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, m_vbo));
     }
+
+    bind_vertex_attributes();
 }
 
 primitive::~primitive()
@@ -75,23 +76,5 @@ void primitive::bind() const
     GL_CALL(glBindVertexArray(m_vao));
 }
 
-void primitive::create_from_existing_vbo(const shader& shader, u32 attrib_count)
-{
-    GL_CALL(glGenVertexArrays(1, &m_vao));
-    GL_CALL(glBindVertexArray(m_vao));
-
-    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, m_vbo));
-
-    u32 count = 0;
-    for (const auto& [name, offset] : m_attrib_offsets)
-    {
-        shader.bind_attribute(name, (void*) offset);
-        ++count;
-        if (count == attrib_count)
-        {
-            break;
-        }
-    }
-}
 
 } // namespace blaze::gfx
