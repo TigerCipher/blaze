@@ -52,9 +52,13 @@ primitive::~primitive()
 
 void primitive::destroy()
 {
-    glDeleteBuffers(1, &m_vbo);
-    glDeleteVertexArrays(1, &m_vao);
-    m_vao = m_vbo = u32_invalid_id;
+    if (m_vao != u32_invalid_id)
+    {
+        LOG_DEBUG("Destroying primitive, vao: {}, vbo: {}", m_vao, m_vbo);
+        GL_CALL(glDeleteBuffers(1, &m_vbo));
+        GL_CALL(glDeleteVertexArrays(1, &m_vao));
+        m_vao = m_vbo = u32_invalid_id;
+    }
 }
 
 void primitive::draw(bool also_bind) const

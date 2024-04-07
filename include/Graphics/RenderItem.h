@@ -21,6 +21,7 @@
 #define BLAZE_RENDERITEM_H
 
 #include <glm/glm.hpp>
+#include <utility>
 #include "Types.h"
 #include "Material.h"
 #include "Primitives.h"
@@ -31,16 +32,17 @@ namespace blaze::gfx
 class render_item
 {
 public:
-    render_item(primitive* obj, const material& mat) : m_object(obj), m_material(mat) {}
+    render_item() = default;
+    render_item(sptr<primitive> obj, const material& mat) : m_object(std::move(obj)), m_material(mat) {}
     ~render_item();
 
     void set_model(const glm::mat4& model) { m_model = model; }
     void draw(const shader& shader) const;
 
 private:
-    primitive* m_object;
-    material   m_material;
-    glm::mat4  m_model;
+    sptr<primitive> m_object;
+    material        m_material;
+    glm::mat4       m_model{ 1.0f };
 };
 
 } // namespace blaze::gfx

@@ -25,6 +25,7 @@ render_item::~render_item()
 {
     m_material.diffuse->unload();
     m_material.specular->unload();
+    m_object->destroy();
 }
 
 void render_item::draw(const shader& shader) const

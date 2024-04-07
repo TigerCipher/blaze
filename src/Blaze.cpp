@@ -19,6 +19,8 @@
 #include "Blaze.h"
 
 #include <SDL.h>
+#include <deque>
+#include <numeric>
 
 #include "Core/Input.h"
 
@@ -128,6 +130,9 @@ void run()
     f32 delta_time;
     f32 last_frame = 0.0f;
 
+    constexpr i32 average_frame_count = 120;
+    std::deque<f32> frame_times(average_frame_count, 0.0f);
+
     cam->set_projection(cam->zoom(), win.aspect_ratio(), 0.1f,
                         100.0f);
 
@@ -137,15 +142,21 @@ void run()
         delta_time        = current_frame - last_frame;
         last_frame        = current_frame;
 
-        running = process_events();
-        update_function(delta_time);
+        frame_times.pop_front();
+        frame_times.push_back(delta_time);
+        f32 avg_delta = std::accumulate(frame_times.begin(), frame_times.end(), 0.0f) / average_frame_count;
 
-        render_function(delta_time);
+        running = process_events();
+        update_function(avg_delta);
+
+        render_function(avg_delta);
         ++frame_counter;
 
         if (get_time() - fps_timer > 1.0f)
         {
             LOG_TRACE("FPS: {}", frame_counter);
+            LOG_TRACE("Delta time: {}", avg_delta);
+            LOG_TRACE("Frame time: {}", 1.0f / frame_counter);
             frame_counter = 0;
             fps_timer     = get_time();
         }

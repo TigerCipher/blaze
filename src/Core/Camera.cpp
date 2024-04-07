@@ -18,6 +18,7 @@
 //  ------------------------------------------------------------------------------
 #include "Core/Camera.h"
 #include "glm/ext/matrix_clip_space.hpp"
+#include "Core/Logger.h"
 #include <glm/ext/matrix_transform.hpp>
 
 namespace blaze

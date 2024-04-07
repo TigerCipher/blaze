@@ -42,12 +42,15 @@ gfx::shader  light_cube_shader{ "light_cube" };
 gfx::texture container{ "container2.png" };
 gfx::texture container_specular{ "container2_specular.png" };
 gfx::texture face{ "face.png" };
-gfx::cube<gfx::vertex_position_normal_texcoords>
-    box(1.0f); // TODO: Probably more efficient to use this for the lamp too and just ignore the normal
+
 gfx::cube<gfx::vertex_position>     light_cube(0.2f);
 camera                              cam{};
 gfx::light                          light{};
 gfx::material                       box_material{};
+
+// TODO: should be managed by blaze. And maybe shared pointers are better for individual transformations and whatnot
+// (i.e see below where we currently do render_items[0]->set_model(model); we instead want to be able to do box_item.set_model...)
+// Or maybe the best solution is to just not have a collection and just let users manage their render items on their own
 std::vector<uptr<gfx::render_item>> render_items;
 
 } // anonymous namespace
@@ -95,6 +98,7 @@ void render(f32 delta)
     //    gfx::bind_material(test, box_material);
 
     glm::mat4 model = glm::mat4(1.0f);
+//    model = glm::rotate(model, get_time(), glm::vec3(1.0f, 0.0f, 1.0f));
     render_items[0]->set_model(model);
 
     for (const auto& item : render_items)
@@ -123,7 +127,10 @@ void init_sandbox()
     }
     cam.set_position({ 0.f, 0.f, 3.f });
 
-    box.create(test);
+    // TODO: Probably more efficient to use this for the lamp too and just ignore the normal
+    sptr<gfx::cube<gfx::vertex_position_normal_texcoords>> box = make_sptr<gfx::cube<gfx::vertex_position_normal_texcoords>>(1.0f);
+    box->create(test);
+
     light_cube.create(light_cube_shader);
 
     light.position = glm::vec3(1.2f, 1.0f, 2.0f);
@@ -131,35 +138,6 @@ void init_sandbox()
     light.diffuse  = glm::vec3(0.5f, 0.5f, 0.5f);
     light.specular = glm::vec3(1.0f, 1.0f, 1.0f);
 
-
-    // TODO: Generally, diffuse, specular, etc textures will always be at the same slots
-    // Instead, material should have a texture, and there can be multiple materials. I.e a wood material for the box
-    // The bind function would activate the texture slots, bind the material data, and bind the textures
-    // Something like:
-    // void bind_material(const shader& shader, const material& mat)
-    //    mat.diffuse_texture.bind();
-    //    mat.specular_texture.bind(1);
-    //    shader.bind();
-    //    shader.set_int("material.diffuse", 0); // these really only need to be bound at init, since the data will never change
-    //    shader.set_int("material.specular", 1);
-    //    shader.set_float("material.shininess", mat.shininess);
-    // In the long run, use would look something like:
-    // material mat;
-    // mat.diffuse_texture = container;
-    // mat.specular_texture = container_specular;
-    // mat.shininess = 32.0f;
-    // render_item item;
-    // item.material = mat;
-    // item.mesh = box;
-    // item.transform = glm::mat4(1.0f);
-    // render_items.push_back(item);
-    // Then in the render loop:
-    // for (const auto& item : render_items)
-    // {
-    //     bind_material(item.material);
-    //     item.mesh.draw();
-    // }
-    // TODO: The above, or something similar, should be considered
     box_material.diffuse   = &container;
     box_material.specular  = &container_specular;
     box_material.shininess = 32.0f;
@@ -171,7 +149,7 @@ void init_sandbox()
     gfx::shader::unbind();
 
 
-    render_items.push_back(make_uptr<gfx::render_item>(&box, box_material));
+    render_items.push_back(make_uptr<gfx::render_item>(box, box_material));
 
     mouse::lock_cursor(true);
 }
@@ -195,8 +173,8 @@ int main()
 
     test.destroy();
     light_cube_shader.destroy();
-    box.destroy();
     render_items.clear();
+    light_cube.destroy();
 
     blaze::shutdown();
     LOG_INFO("Sandbox ended");
