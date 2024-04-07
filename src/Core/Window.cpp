@@ -55,7 +55,7 @@ bool window::create(const std::string& title, i32 width, i32 height)
     }
 
     // for now disable vsync TODO: make this a setting
-    if (SDL_GL_SetSwapInterval(1) < 0)
+    if (SDL_GL_SetSwapInterval(0) < 0)
     {
         LOG_WARN("Failed to disable vsync. Error: {}", SDL_GetError());
     }

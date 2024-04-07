@@ -31,7 +31,7 @@ namespace blaze
 {
 
 
-bool init(camera* pcam, const std::function<void(f32)>& render_function, const std::function<void(f32)>& update_function);
+bool init(camera* pcam, const std::function<void(f64)>& render_function, const std::function<void(f64)>& update_function);
 void shutdown();
 void run();
 
@@ -40,7 +40,7 @@ bool create_window(const std::string& title, i32 width, i32 height);
 
 void exit_now();
 
-f32 get_time();
+f64 get_time();
 
 } // namespace blaze
 

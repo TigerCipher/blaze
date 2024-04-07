@@ -35,8 +35,8 @@ bool is_init = false;
 
 window win{};
 
-std::function<void(f32)> render_function;
-std::function<void(f32)> update_function;
+std::function<void(f64)> render_function;
+std::function<void(f64)> update_function;
 camera*                  cam{};
 
 
@@ -80,7 +80,7 @@ bool process_events()
 
 } // anonymous namespace
 
-bool init(camera* pcam, const std::function<void(f32)>& render_func, const std::function<void(f32)>& update_func)
+bool init(camera* pcam, const std::function<void(f64)>& render_func, const std::function<void(f64)>& update_func)
 {
     if (is_init)
     {
@@ -125,26 +125,26 @@ void run()
     running = true;
 
     u32 frame_counter = 0;
-    f32 fps_timer     = get_time();
+    f64 fps_timer     = get_time();
 
-    f32 delta_time;
-    f32 last_frame = 0.0f;
+    f64 delta_time;
+    f64 last_frame = 0.0;
 
-    constexpr i32 average_frame_count = 120;
-    std::deque<f32> frame_times(average_frame_count, 0.0f);
+    constexpr i32 average_frame_count = 5000;
+    std::deque<f64> frame_times(average_frame_count, 0.0f);
 
     cam->set_projection(cam->zoom(), win.aspect_ratio(), 0.1f,
                         100.0f);
 
     while (running)
     {
-        f32 current_frame = get_time();
+        f64 current_frame = get_time();
         delta_time        = current_frame - last_frame;
         last_frame        = current_frame;
 
         frame_times.pop_front();
         frame_times.push_back(delta_time);
-        f32 avg_delta = std::accumulate(frame_times.begin(), frame_times.end(), 0.0f) / average_frame_count;
+        f64 avg_delta = std::accumulate(frame_times.begin(), frame_times.end(), 0.0) / average_frame_count;
 
         running = process_events();
         update_function(avg_delta);
@@ -152,10 +152,10 @@ void run()
         render_function(avg_delta);
         ++frame_counter;
 
-        if (get_time() - fps_timer > 1.0f)
+        if (get_time() - fps_timer > 1.0)
         {
             LOG_TRACE("FPS: {}", frame_counter);
-            LOG_TRACE("Delta time: {}", avg_delta);
+            LOG_TRACE("Avg. delta: {}, Delta time: {}", avg_delta, delta_time);
             LOG_TRACE("Frame time: {}", 1.0f / frame_counter);
             frame_counter = 0;
             fps_timer     = get_time();
@@ -174,9 +174,9 @@ bool create_window(const std::string& title, i32 width, i32 height)
 }
 
 
-f32 get_time()
+f64 get_time()
 {
-    return (f32) SDL_GetPerformanceCounter() / (f32) SDL_GetPerformanceFrequency();
+    return (f64)SDL_GetPerformanceCounter() / (f64)SDL_GetPerformanceFrequency();
 }
 
 void exit_now()

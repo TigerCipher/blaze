@@ -55,7 +55,7 @@ std::vector<uptr<gfx::render_item>> render_items;
 
 } // anonymous namespace
 
-void update(f32 delta)
+void update(f64 delta)
 {
     if (keyboard::is_key_down(key::escape))
     {
@@ -79,7 +79,7 @@ void update(f32 delta)
     }
 }
 
-void render(f32 delta)
+void render(f64 delta)
 {
     blaze::gfx::clear_screen(0.2f, 0.f, 0.f);
 
