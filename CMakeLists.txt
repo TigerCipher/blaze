@@ -27,6 +27,8 @@ add_library(blaze STATIC
         src/Graphics/Material.cpp
         include/Graphics/Light.h
         src/Graphics/Light.cpp
+        include/Graphics/RenderItem.h
+        src/Graphics/RenderItem.cpp
 )
 
 target_include_directories(blaze PUBLIC include)

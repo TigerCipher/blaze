@@ -253,7 +253,7 @@ bool shader::compile(const std::string& vertex_shader, const std::string& fragme
     glDeleteShader(vertex);
     glDeleteShader(fragment);
 
-    LOG_INFO("Shader [{}] compiled successfully", m_name);
+    LOG_INFO("Shader [{}] compiled successfully - stored as program {}", m_name, m_id);
     return true;
 }
 
@@ -267,7 +267,10 @@ shader::~shader()
 
 void shader::bind() const
 {
-    if(s_bound_shader == m_id) return;
+    if(s_bound_shader == m_id)
+    {
+        return;
+    }
     GL_CALL(glUseProgram(m_id));
     s_bound_shader = m_id;
 }

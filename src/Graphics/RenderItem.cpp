@@ -16,29 +16,23 @@
 //     limitations under the License.
 //
 //  ------------------------------------------------------------------------------
-
-#ifndef BLAZE_MATERIAL_H
-#define BLAZE_MATERIAL_H
-
-#include <glm/glm.hpp>
-#include "Types.h"
-
-#include "Shader.h"
-#include "Texture.h"
+#include "Graphics/RenderItem.h"
 
 namespace blaze::gfx
 {
 
-struct material
+render_item::~render_item()
 {
-    texture* diffuse;
-    texture* specular;
-    f32 shininess;
-};
+    m_material.diffuse->unload();
+    m_material.specular->unload();
+}
 
-void bind_material(const shader& shader, const material& mat);
+void render_item::draw(const shader& shader) const
+{
+    bind_material(shader, m_material);
+    shader.set_mat4("model", m_model);
+    m_object->draw();
+}
 
 
 } // namespace blaze::gfx
-
-#endif //BLAZE_MATERIAL_H

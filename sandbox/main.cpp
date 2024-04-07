@@ -26,6 +26,7 @@
 #include "Core/Input.h"
 #include "Graphics/Material.h"
 #include "Graphics/Light.h"
+#include "Graphics/RenderItem.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -43,10 +44,11 @@ gfx::texture container_specular{ "container2_specular.png" };
 gfx::texture face{ "face.png" };
 gfx::cube<gfx::vertex_position_normal_texcoords>
     box(1.0f); // TODO: Probably more efficient to use this for the lamp too and just ignore the normal
-gfx::cube<gfx::vertex_position> light_cube(0.2f);
-camera                          cam{};
-gfx::material                   box_material{};
-gfx::light                      light{};
+gfx::cube<gfx::vertex_position>     light_cube(0.2f);
+camera                              cam{};
+gfx::light                          light{};
+gfx::material                       box_material{};
+std::vector<uptr<gfx::render_item>> render_items;
 
 } // anonymous namespace
 
@@ -90,11 +92,15 @@ void render(f32 delta)
     light.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
     light.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
     gfx::bind_light(test, light);
-    gfx::bind_material(test, box_material);
+    //    gfx::bind_material(test, box_material);
 
     glm::mat4 model = glm::mat4(1.0f);
-    test.set_mat4("model", model);
-    box.draw();
+    render_items[0]->set_model(model);
+
+    for (const auto& item : render_items)
+    {
+        item->draw(test);
+    }
 
     light_cube_shader.bind();
     light_cube_shader.set_mat4("view", cam.view_matrix());
@@ -154,10 +160,18 @@ void init_sandbox()
     //     item.mesh.draw();
     // }
     // TODO: The above, or something similar, should be considered
-    box_material.diffuse_texture  = 0;
-    box_material.specular_texture = 1;
-    box_material.shininess        = 32.0f;
+    box_material.diffuse   = &container;
+    box_material.specular  = &container_specular;
+    box_material.shininess = 32.0f;
 
+    test.bind();
+    test.set_int("material.diffuse", 0);
+    test.set_int("material.specular", 1);
+    // unbind here since we change gl state when we clear the screen (otherwise we get performance warnings)
+    gfx::shader::unbind();
+
+
+    render_items.push_back(make_uptr<gfx::render_item>(&box, box_material));
 
     mouse::lock_cursor(true);
 }
@@ -180,7 +194,9 @@ int main()
     }
 
     test.destroy();
+    light_cube_shader.destroy();
     box.destroy();
+    render_items.clear();
 
     blaze::shutdown();
     LOG_INFO("Sandbox ended");

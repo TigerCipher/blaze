@@ -18,6 +18,7 @@
 //  ------------------------------------------------------------------------------
 #include "Graphics/Texture.h"
 #include "Core/Logger.h"
+#include "Graphics/GLCore.h"
 
 #include <GL/glew.h>
 #include <SOIL2/SOIL2.h>
@@ -94,13 +95,14 @@ void texture::unload()
 
 void texture::bind(u32 slot) const
 {
-    glActiveTexture(GL_TEXTURE0 + slot);
-    glBindTexture(GL_TEXTURE_2D, m_id);
+    GL_CALL(glActiveTexture(GL_TEXTURE0 + slot));
+    GL_CALL(glBindTexture(GL_TEXTURE_2D, m_id));
 }
 
 void texture::activate_slot(u32 slot)
 {
     glActiveTexture(GL_TEXTURE0 + slot);
 }
+
 
 } // namespace blaze::gfx

@@ -17,28 +17,32 @@
 //
 //  ------------------------------------------------------------------------------
 
-#ifndef BLAZE_MATERIAL_H
-#define BLAZE_MATERIAL_H
+#ifndef BLAZE_RENDERITEM_H
+#define BLAZE_RENDERITEM_H
 
 #include <glm/glm.hpp>
 #include "Types.h"
-
-#include "Shader.h"
-#include "Texture.h"
+#include "Material.h"
+#include "Primitives.h"
 
 namespace blaze::gfx
 {
 
-struct material
+class render_item
 {
-    texture* diffuse;
-    texture* specular;
-    f32 shininess;
+public:
+    render_item(primitive* obj, const material& mat) : m_object(obj), m_material(mat) {}
+    ~render_item();
+
+    void set_model(const glm::mat4& model) { m_model = model; }
+    void draw(const shader& shader) const;
+
+private:
+    primitive* m_object;
+    material   m_material;
+    glm::mat4  m_model;
 };
-
-void bind_material(const shader& shader, const material& mat);
-
 
 } // namespace blaze::gfx
 
-#endif //BLAZE_MATERIAL_H
+#endif //BLAZE_RENDERITEM_H
