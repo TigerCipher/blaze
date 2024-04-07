@@ -62,12 +62,15 @@ public:
     virtual ~primitive();
 
     void create(const shader& shader);
+    void create_from_existing_vbo(const shader& shader, u32 attrib_count);
     void destroy();
 
     void bind() const;
     void draw(bool also_bind = true) const;
 
     virtual void bind_buffer_data() const = 0;
+
+    constexpr u32 vbo() const { return m_vbo; }
 
 protected:
     u32 m_vao{ u32_invalid_id };
@@ -82,9 +85,15 @@ template<typename T>
 class cube : public primitive
 {
 public:
+    cube(const sptr<cube<T>>& other)
+    {
+        m_attrib_offsets = other->m_attrib_offsets;
+        m_vbo            = other->m_vbo;
+        m_count          = other->m_count;
+    }
+
     cube(f32 size = 1.0f)
     {
-        // check if T is vertex_position_texcoords
         f32 half_size = size / 2.0f;
         if constexpr (std::same_as<T, vertex_position>)
         {
@@ -261,9 +270,13 @@ public:
 
     void bind_buffer_data() const override { buffer_data(m_vbo, (i64) m_vertices.size() * sizeof(T), m_vertices.data()); }
 
+
+    static sptr<cube<T>> create_from_existing(const sptr<cube<T>>& c) { sptr<cube<T>> ret = make_sptr<cube<T>>(1.f); }
+
 private:
     std::vector<T> m_vertices{};
 };
+
 
 } // namespace blaze::gfx
 

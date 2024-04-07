@@ -43,15 +43,13 @@ gfx::texture container{ "container2.png" };
 gfx::texture container_specular{ "container2_specular.png" };
 gfx::texture face{ "face.png" };
 
-gfx::cube<gfx::vertex_position> light_cube(0.2f);
-camera                          cam{};
-gfx::light                      light{};
-gfx::material                   box_material{};
+camera        cam{};
+gfx::light    light{};
+gfx::material box_material{};
+gfx::material no_material{};
 
-// TODO: should be managed by blaze. And maybe shared pointers are better for individual transformations and whatnot
-// (i.e see below where we currently do render_items[0]->set_model(model); we instead want to be able to do box_item.set_model...)
-// Or maybe the best solution is to just not have a collection and just let users manage their render items on their own
-std::vector<uptr<gfx::render_item>> render_items;
+uptr<gfx::render_item> box_item{};
+uptr<gfx::render_item> light_item{};
 
 } // anonymous namespace
 
@@ -110,19 +108,17 @@ void render(f64 delta)
 
     glm::mat4 model = glm::mat4(1.0f);
     //    model = glm::rotate(model, get_time(), glm::vec3(1.0f, 0.0f, 1.0f));
-    render_items[0]->set_model(model);
+    box_item->set_model(model);
 
-    for (const auto& item : render_items)
-    {
-        item->draw(test);
-    }
+    box_item->draw(test);
 
     light_cube_shader.bind();
     light_cube_shader.set_mat4("view", cam.view_matrix());
     light_cube_shader.set_mat4("projection", cam.projection());
     model = glm::translate(model, light.position);
-    light_cube_shader.set_mat4("model", model);
-    light_cube.draw();
+    model = glm::scale(model, glm::vec3(0.2f));
+    light_item->set_model(model);
+    light_item->draw(light_cube_shader);
 }
 
 void init_sandbox()
@@ -138,12 +134,18 @@ void init_sandbox()
     }
     cam.set_position({ 0.f, 0.f, 3.f });
 
-    // TODO: Probably more efficient to use this for the lamp too and just ignore the normal
     sptr<gfx::cube<gfx::vertex_position_normal_texcoords>> box =
         make_sptr<gfx::cube<gfx::vertex_position_normal_texcoords>>(1.0f);
     box->create(test);
 
-    light_cube.create(light_cube_shader);
+    // Bit ugly, but this is a way to have light_cube share the vbo with box, which is more efficient
+    sptr<gfx::cube<gfx::vertex_position_normal_texcoords>> light_cube =
+        make_sptr<gfx::cube<gfx::vertex_position_normal_texcoords>>(box);
+    light_cube->create_from_existing_vbo(test, 1); // pass in test shader so the attribute binding gets the correct stride
+    // TODO: Might be cleaner to make attributes bind from the mesh rather than shader
+    // total stride can be gotten from the vertex rather than attribute info?
+    // Though doing it from the shader will get the names and locations automatically
+    light_item = make_uptr<gfx::render_item>(light_cube, no_material);
 
     light.position = glm::vec3(1.2f, 1.0f, 2.0f);
     light.ambient  = glm::vec3(0.2f, 0.2f, 0.2f);
@@ -161,7 +163,7 @@ void init_sandbox()
     gfx::shader::unbind();
 
 
-    render_items.push_back(make_uptr<gfx::render_item>(box, box_material));
+    box_item = make_uptr<gfx::render_item>(box, box_material);
 
     mouse::lock_cursor(true);
 }
@@ -185,8 +187,8 @@ int main()
 
     test.destroy();
     light_cube_shader.destroy();
-    render_items.clear();
-    light_cube.destroy();
+    light_item->destroy();
+    box_item->destroy();
 
     blaze::shutdown();
     LOG_INFO("Sandbox ended");

@@ -23,16 +23,29 @@ namespace blaze::gfx
 
 render_item::~render_item()
 {
-    m_material.diffuse->unload();
-    m_material.specular->unload();
-    m_object->destroy();
+    if (!m_destroyed)
+    {
+        destroy();
+    }
 }
 
 void render_item::draw(const shader& shader) const
 {
     bind_material(shader, m_material);
+    shader.bind();
     shader.set_mat4("model", m_model);
     m_object->draw();
+}
+
+void render_item::destroy()
+{
+    if(m_material.diffuse && m_material.specular)
+    {
+        m_material.diffuse->unload();
+        m_material.specular->unload();
+    }
+    m_object->destroy();
+    m_destroyed = true;
 }
 
 

@@ -32,17 +32,19 @@ namespace blaze::gfx
 class render_item
 {
 public:
-    render_item() = default;
     render_item(sptr<primitive> obj, const material& mat) : m_object(std::move(obj)), m_material(mat) {}
     ~render_item();
 
     void set_model(const glm::mat4& model) { m_model = model; }
     void draw(const shader& shader) const;
 
+    void destroy();
+
 private:
     sptr<primitive> m_object;
     material        m_material;
     glm::mat4       m_model{ 1.0f };
+    bool            m_destroyed{ false };
 };
 
 } // namespace blaze::gfx
