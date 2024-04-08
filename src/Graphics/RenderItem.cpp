@@ -44,6 +44,10 @@ void render_item::destroy()
         m_material.diffuse->unload();
         m_material.specular->unload();
     }
+    if(m_material.emission)
+    {
+        m_material.emission->unload();
+    }
     m_object->destroy();
     m_destroyed = true;
 }

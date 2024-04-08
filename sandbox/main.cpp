@@ -42,6 +42,7 @@ gfx::shader  light_cube_shader{ "light_cube" };
 gfx::texture container{ "container2.png" };
 gfx::texture container_specular{ "container2_specular.png" };
 gfx::texture face{ "face.png" };
+gfx::texture matrix{ "matrix.jpg" };
 
 camera        cam{};
 gfx::light    light{};
@@ -92,24 +93,18 @@ void render(f64 delta)
 {
     blaze::gfx::clear_screen(0.2f, 0.f, 0.f);
 
-    container.bind();
-    container_specular.bind(1);
-
-
     test.bind();
     test.set_mat4("view", cam.view_matrix());
     test.set_mat4("projection", cam.projection());
 
     test.set_vec3("viewPos", cam.position());
-    light.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-    light.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
+
     gfx::bind_light(test, light);
     //    gfx::bind_material(test, box_material);
 
     glm::mat4 model = glm::mat4(1.0f);
     //    model = glm::rotate(model, get_time(), glm::vec3(1.0f, 0.0f, 1.0f));
     box_item->set_model(model);
-
     box_item->draw(test);
 
     light_cube_shader.bind();
@@ -128,7 +123,7 @@ void init_sandbox()
         return;
     }
 
-    if (!container.load(true) || !face.load(true) || !container_specular.load(true))
+    if (!container.load(true) || !face.load(true) || !container_specular.load(true) || !matrix.load(true))
     {
         return;
     }
@@ -139,26 +134,24 @@ void init_sandbox()
     box->create();
 
     // Bit ugly, but this is a way to have light_cube share the vbo with box, which is more efficient
-    sptr<gfx::cube<gfx::vertex_position>> light_cube =
-        make_sptr<gfx::cube<gfx::vertex_position>>(box);
+    sptr<gfx::cube<gfx::vertex_position>> light_cube = make_sptr<gfx::cube<gfx::vertex_position>>(box);
     light_cube->create();
-    // TODO: Might be cleaner to make attributes bind from the mesh rather than shader
-    // total stride can be gotten from the vertex rather than attribute info?
-    // Though doing it from the shader will get the names and locations automatically
     light_item = make_uptr<gfx::render_item>(light_cube, no_material);
 
     light.position = glm::vec3(1.2f, 1.0f, 2.0f);
-    light.ambient  = glm::vec3(0.2f, 0.2f, 0.2f);
+    light.ambient  = glm::vec3(0.1f, 0.1f, 0.1f);
     light.diffuse  = glm::vec3(0.5f, 0.5f, 0.5f);
     light.specular = glm::vec3(1.0f, 1.0f, 1.0f);
 
     box_material.diffuse   = &container;
     box_material.specular  = &container_specular;
+//    box_material.emission  = &matrix;
     box_material.shininess = 32.0f;
 
     test.bind();
     test.set_int("material.diffuse", 0);
     test.set_int("material.specular", 1);
+    test.set_int("material.emission", 2);
     // unbind here since we change gl state when we clear the screen (otherwise we get performance warnings)
     gfx::shader::unbind();
 

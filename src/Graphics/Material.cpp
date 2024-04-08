@@ -22,12 +22,16 @@ namespace blaze::gfx
 {
 void bind_material(const shader& shader, const material& mat)
 {
-    if(!mat.diffuse || !mat.specular)
+    if (!mat.diffuse || !mat.specular)
     {
         return;
     }
     mat.diffuse->bind();
     mat.specular->bind(1);
+    if (mat.emission)
+    {
+        mat.emission->bind(2);
+    }
     shader.bind();
     shader.set_float("material.shininess", mat.shininess);
 }

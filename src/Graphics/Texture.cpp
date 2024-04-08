@@ -88,7 +88,8 @@ void texture::unload()
 {
     if (m_id != u32_invalid_id)
     {
-        glDeleteTextures(1, &m_id);
+        LOG_DEBUG("Unloading texture: {}", m_name);
+        GL_CALL(glDeleteTextures(1, &m_id));
         m_id = u32_invalid_id;
     }
 }
