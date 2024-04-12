@@ -35,7 +35,51 @@ struct light
     glm::vec3 specular;
 };
 
+struct directional_light
+{
+    glm::vec3 direction;
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+};
+
+struct point_light
+{
+    glm::vec3 position;
+
+    f32 constant = 1.0f; // ever really need this? pretty much will always be 1
+    f32 linear;
+    f32 quadratic;
+
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+};
+
+struct spot_light
+{
+    glm::vec3 position;
+    glm::vec3 direction;
+
+    f32 constant = 1.0f;
+    f32 linear;
+    f32 quadratic;
+
+    f32 cutoff;
+    f32 outer_cutoff;
+
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+};
+
 void bind_light(const shader& shader, const light& light);
+
+void bind_light(const shader& shader, const directional_light& light);
+
+void bind_light(const shader& shader, const point_light& light, u32 index);
+
+void bind_light(const shader& shader, const spot_light& light);
 
 }
 

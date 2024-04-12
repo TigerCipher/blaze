@@ -33,7 +33,6 @@ struct material
 {
     texture* diffuse;
     texture* specular;
-    texture* emission;
     f32 shininess;
 };
 

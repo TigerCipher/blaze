@@ -111,6 +111,8 @@ void shutdown()
     is_init = false;
 }
 
+#define FPS_COUNTER 0
+
 void run()
 {
     if (!cam)
@@ -150,6 +152,8 @@ void run()
         update_function(avg_delta);
 
         render_function(avg_delta);
+
+#if FPS_COUNTER
         ++frame_counter;
 
         if (get_time() - fps_timer > 1.0)
@@ -160,6 +164,7 @@ void run()
             frame_counter = 0;
             fps_timer     = get_time();
         }
+#endif
 
         mouse::update();
         keyboard::update();
